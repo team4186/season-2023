@@ -3,7 +3,6 @@ package frc.commands.drive
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
-import edu.wpi.first.wpilibj2.command.button.Button
 import frc.subsystems.DriveTrainSubsystem
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -17,7 +16,7 @@ class EncoderDrive(
     private val inputYaw: () -> Double,
     private val inputThrottle: () -> Double,
     private val forward: () -> Double,
-    private val turnInPlace: Button,
+    private val turnInPlace: () -> Boolean = { true },
     private val drive: DriveTrainSubsystem,
     private val sendDebugData: Boolean
 ) : CommandBase() {
@@ -63,14 +62,14 @@ class EncoderDrive(
         // region Input -> Output
         var leftSpeed: Double
         var rightSpeed: Double
-        if (!turnInPlace.asBoolean) {
+        if (turnInPlace()) {
+            leftSpeed = throttle + throttle * yaw
+            rightSpeed = throttle - throttle * yaw
+        } else {
             throttle = (throttle * throttle).withSign(rawY)
             yaw = (yaw * yaw).withSign(rawX)
             leftSpeed = throttle + yaw
             rightSpeed = throttle - yaw
-        } else {
-            leftSpeed = throttle + throttle * yaw
-            rightSpeed = throttle - throttle * yaw
         }
 
         // Normalize wheel speeds
