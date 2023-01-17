@@ -18,15 +18,15 @@ val ShinDestroyer = Definition(
     ),
     motors = Motors(
         driveLeft = driveCTRMotors(
-            lead = WPI_TalonSRX(5),
+            lead = WPI_TalonSRX(2),
             follower0 = WPI_VictorSPX(3),
-            follower1 = WPI_VictorSPX(4),
+            follower1 = WPI_VictorSPX(1),
             invert = true
         ),
         driveRight = driveCTRMotors(
-            lead = WPI_TalonSRX(2),
-            follower0 = WPI_VictorSPX(6),
-            follower1 = WPI_VictorSPX(7),
+            lead = WPI_TalonSRX(14),
+            follower0 = WPI_VictorSPX(15),
+            follower1 = WPI_VictorSPX(13),
             invert = false
         ),
     ),
