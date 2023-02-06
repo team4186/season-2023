@@ -1,7 +1,12 @@
 package frc.robot
 
 import com.kauailabs.navx.frc.AHRS
+import com.revrobotics.CANSparkMax
+import com.revrobotics.CANSparkMaxLowLevel
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.ADIS16448_IMU
+import edu.wpi.first.wpilibj.DigitalInput
+import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.I2C
 import edu.wpi.first.wpilibj.SerialPort
 import edu.wpi.first.wpilibj.TimedRobot
@@ -13,15 +18,39 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.commands.Autonomous.move
 import frc.commands.Commands.DriveCommands.cheesy
 import frc.commands.Commands.DriveCommands.raw
+import frc.commands.balancing.GyroBalance
 import frc.robot.definition.Definition
+
+const val MAX_SPEED_ENCODER = 2000
+//joystick * ^^ = input to pids
 class Robot(private val definition: Definition) : TimedRobot() {
     private enum class DriveMode {
         Raw,
         Cheesy
     }
 
+    private val gyro = ADIS16448_IMU()
+    private val leftEncoder = Encoder(0,1, true)
+    private val rightEncoder = Encoder(2, 3)
+
+    private val gyroBalance = GyroBalance(
+        forward = PIDController(
+            0.05, 0.0015, 0.002
+        ).apply {
+            enableContinuousInput(-180.0, 180.0)
+            setTolerance(1.5)
+        },
+        turn = PIDController(
+            0.0, 0.0, 0.0
+        ),
+        drive = definition.subsystems.driveTrain,
+        gyro = gyro
+    )
+
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
+
+    private val intakeMotor = CANSparkMax(13, CANSparkMaxLowLevel.MotorType.kBrushless)
 
     override fun robotInit() {
         definition.subsystems.driveTrain.initialize()
@@ -29,6 +58,7 @@ class Robot(private val definition: Definition) : TimedRobot() {
 
         with(autonomousChooser) {
             addOption("Move 2 Meters", definition.move(2.0))
+            addOption("Balance", gyroBalance)
             SmartDashboard.putData("Autonomous Mode", this)
         }
 
@@ -39,8 +69,18 @@ class Robot(private val definition: Definition) : TimedRobot() {
         }
     }
 
+    private var leftMaxVal = 0.0
+    private var rightMaxVal = 0.0
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
+        leftMaxVal = maxOf(leftEncoder.rate, leftMaxVal)
+        rightMaxVal = maxOf(rightEncoder.rate, rightMaxVal)
+        SmartDashboard.putNumber("Left Encoder", leftMaxVal)
+        SmartDashboard.putNumber("Right Encoder", rightMaxVal)
+        SmartDashboard.putNumber("AngleX", gyro.gyroAngleX)
+        SmartDashboard.putNumber("AngleY", gyro.gyroAngleY)
+        SmartDashboard.putNumber("AngleZ", gyro.gyroAngleZ)
+        SmartDashboard.putNumber("Forward Power", gyroBalance.forwardPower)
     }
 
     override fun autonomousInit() {
@@ -56,16 +96,32 @@ class Robot(private val definition: Definition) : TimedRobot() {
     }
 
     override fun teleopInit() {
-        when (driveModeChooser.selected) {
-            DriveMode.Cheesy -> definition.cheesy()
-            DriveMode.Raw -> definition.raw()
-            else -> definition.raw()
-        }.schedule()
+        gyro.reset();
+
+//        when (driveModeChooser.selected) {
+//            DriveMode.Cheesy -> definition.cheesy()
+//            DriveMode.Raw -> definition.raw()
+//            else -> definition.raw()
+//        }.schedule()
     }
 
-    private val gyro = ADIS16448_IMU()
     override fun teleopPeriodic() {
-        SmartDashboard.putNumber("Angle", gyro.gyroAngleY)
+
+        definition.motors.driveLeft.lead.set(
+            when {
+                definition.input.joystick.getRawButton(1) -> 1.0
+                definition.input.joystick.getRawButton(2) -> -1.0
+                else -> 0.0
+            }
+        )
+
+        definition.motors.driveRight.lead.set(
+            when {
+                definition.input.joystick.getRawButton(1) -> 1.0
+                definition.input.joystick.getRawButton(2) -> -1.0
+                else -> 0.0
+            }
+        )
     }
 
     override fun teleopExit() {
