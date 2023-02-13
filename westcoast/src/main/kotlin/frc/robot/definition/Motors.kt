@@ -5,19 +5,47 @@ import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.wpilibj.motorcontrol.MotorController
 
 data class Motors(
     val driveLeft: DriveMotors,
     val driveRight: DriveMotors,
+    val hDrive: DriveMotors
 ) {
     class DriveMotors(
         val lead: MotorController,
         val follower0: MotorController,
-        val follower1: MotorController
+        val follower1: MotorController? = null
     )
 
     companion object {
+        fun driveSparkMaxMotors(
+            lead: CANSparkMax,
+            follower0: CANSparkMax,
+            invert: Boolean
+        ): DriveMotors {
+            follower0.follow(lead)
+            follower0.inverted = invert
+
+            // endregion
+
+            // region Lead
+            lead.inverted = invert
+
+            lead.idleMode = CANSparkMax.IdleMode.kBrake
+
+            // endregion
+
+            // region Voltage Saturation
+            // See https://docs.ctre-phoenix.com/en/stable/ch13_MC.html#voltage-compensation
+            lead.enableVoltageCompensation(11.0)
+            follower0.enableVoltageCompensation(11.0)
+
+            // endregion
+            return DriveMotors(lead, follower0)
+        }
+
         fun driveCTRMotors(
             lead: WPI_TalonSRX,
             follower0: WPI_VictorSPX,

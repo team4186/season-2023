@@ -10,6 +10,7 @@ object Commands {
         fun Definition.raw(): TeleopDrive {
             return TeleopDrive(
                 inputThrottle = { input.joystick.y },
+                inputTurn = { input.joystick.twist },
                 inputYaw = { input.joystick.x },
                 drive = subsystems.driveTrain
             )

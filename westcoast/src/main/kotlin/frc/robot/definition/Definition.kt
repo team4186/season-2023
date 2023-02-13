@@ -12,6 +12,7 @@ data class Definition(
         driveTrain = DriveTrainSubsystem(
             leftMotor = motors.driveLeft.lead,
             rightMotor = motors.driveRight.lead,
+            hMotor = motors.hDrive.lead,
             leftEncoder = sensors.drive.leftEncoder,
             rightEncoder = sensors.drive.rightEncoder,
             gyro = sensors.drive.gyro,

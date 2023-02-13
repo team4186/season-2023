@@ -98,30 +98,15 @@ class Robot(private val definition: Definition) : TimedRobot() {
     override fun teleopInit() {
         gyro.reset();
 
-//        when (driveModeChooser.selected) {
-//            DriveMode.Cheesy -> definition.cheesy()
-//            DriveMode.Raw -> definition.raw()
-//            else -> definition.raw()
-//        }.schedule()
+        when (driveModeChooser.selected) {
+            DriveMode.Cheesy -> definition.cheesy()
+            DriveMode.Raw -> definition.raw()
+            else -> definition.raw()
+        }.schedule()
     }
 
     override fun teleopPeriodic() {
 
-        definition.motors.driveLeft.lead.set(
-            when {
-                definition.input.joystick.getRawButton(1) -> 1.0
-                definition.input.joystick.getRawButton(2) -> -1.0
-                else -> 0.0
-            }
-        )
-
-        definition.motors.driveRight.lead.set(
-            when {
-                definition.input.joystick.getRawButton(1) -> 1.0
-                definition.input.joystick.getRawButton(2) -> -1.0
-                else -> 0.0
-            }
-        )
     }
 
     override fun teleopExit() {

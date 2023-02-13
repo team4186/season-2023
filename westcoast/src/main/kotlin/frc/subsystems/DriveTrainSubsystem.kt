@@ -6,11 +6,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive
 import edu.wpi.first.wpilibj.interfaces.Gyro
 import edu.wpi.first.wpilibj.motorcontrol.MotorController
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.robot.definition.Motors
 import frc.vision.VisionRunner
 
 class DriveTrainSubsystem(
     private val leftMotor: MotorController,
     private val rightMotor: MotorController,
+    private val hMotor: MotorController,
     val leftEncoder: Encoder,
     val rightEncoder: Encoder,
     val gyro: Gyro,
@@ -43,6 +45,11 @@ class DriveTrainSubsystem(
 
     fun arcade(forward: Double, turn: Double, squareInputs: Boolean) {
         drive.arcadeDrive(forward, turn, squareInputs)
+    }
+
+    fun holonomic(forward: Double, turn: Double, strafe: Double, squareInputs: Boolean){
+        drive.arcadeDrive(forward, turn, squareInputs)
+        hMotor.set(strafe.coerceIn(-0.4, 0.4))
     }
 
     fun tank(left: Double, right: Double, squareInputs: Boolean) {

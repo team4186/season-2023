@@ -7,9 +7,10 @@ import kotlin.math.pow
 import kotlin.math.withSign
 
 class TeleopDrive(
-    private val inputYaw: () -> Double,
+    private val inputTurn: () -> Double,
     private val inputThrottle: () -> Double,
-    private val shouldAttenuate: () -> Boolean = { false },
+    private val inputYaw: () -> Double,
+    private val shouldAttenuate: () -> Boolean = { true },
     private val forward: () -> Double = { -1.0 },
     private val drive: DriveTrainSubsystem
 ) : CommandBase() {
@@ -19,17 +20,21 @@ class TeleopDrive(
 
     override fun execute() {
         val throttle: Double
-        val yaw: Double
+        val turn: Double
+        val strafe: Double
         if (shouldAttenuate()) {
             throttle = attenuated(forward() * inputThrottle())
-            yaw = attenuated(-inputYaw())
+            turn = attenuated(-0.75 * inputTurn())
+            strafe = attenuated(-inputYaw())
         } else {
             throttle = full(forward() * inputThrottle())
-            yaw = full(-inputYaw()).coerceIn(-0.6, 0.6)
+            turn = full(-inputTurn()).coerceIn(-0.4, 0.4)
+            strafe = full(-inputYaw())
         }
-        drive.arcade(
+        drive.holonomic(
             forward = -throttle,
-            turn = -yaw,
+            turn = turn,
+            strafe = -strafe,
             squareInputs = false
         )
     }
@@ -46,6 +51,10 @@ class TeleopDrive(
     }
 
     private fun attenuated(value: Double): Double {
-        return 0.5 * value
+        return if (value > 0) {
+            0.5 * value.pow(2)
+        } else {
+            -0.5 * value.pow(2)
+        }
     }
 }

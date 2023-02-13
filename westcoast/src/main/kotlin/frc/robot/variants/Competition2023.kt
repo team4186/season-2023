@@ -2,6 +2,8 @@ package frc.robot.variants
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX
+import com.revrobotics.CANSparkMax
+import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.Encoder
@@ -9,32 +11,30 @@ import edu.wpi.first.wpilibj.Joystick
 import frc.hardware.DummyGyro
 import frc.robot.definition.*
 import frc.robot.definition.Motors.Companion.driveCTRMotors
+import frc.robot.definition.Motors.Companion.driveSparkMaxMotors
 import frc.vision.LimelightRunner
 
-val ShinDestroyer = Definition(
+val Competition2023 = Definition(
     name = "Shin Destroyer",
     input = Input(
         joystick = Joystick(0)
     ),
     motors = Motors(
-        driveLeft = driveCTRMotors(
-            lead = WPI_TalonSRX(2),
-            follower0 = WPI_VictorSPX(3),
-            follower1 = WPI_VictorSPX(1),
-            invert = false
+        driveLeft = driveSparkMaxMotors(
+            lead = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
+            follower0 = CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless),
+            invert = false,
         ),
-        driveRight = driveCTRMotors(
-            lead = WPI_TalonSRX(8),
-            follower0 = WPI_VictorSPX(4),
-            follower1 = WPI_VictorSPX(6),
-            invert = true
+        driveRight = driveSparkMaxMotors(
+            lead = CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
+            follower0 = CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless),
+            invert = true,
         ),
-        hDrive = driveCTRMotors(
-            lead = WPI_TalonSRX(9),
-            follower0 = WPI_VictorSPX(7),
-            follower1 = WPI_VictorSPX(0), //SOMEONE PLEASE PUT A Victor ON TEST ROBOT
-            invert = true
-        ),
+        hDrive = driveSparkMaxMotors(
+            lead = CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
+            follower0 = CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
+            invert = false,
+        )
     ),
     sensors = Sensors(
         drive = Sensors.DriveSensors(
