@@ -5,6 +5,7 @@ interface VisionRunner {
     val hasTarget: Boolean
     val xOffset: Double
     val yOffset: Double
+    val targetArea: Double
     val distance: Double
     fun setLight(mode: Boolean)
 }

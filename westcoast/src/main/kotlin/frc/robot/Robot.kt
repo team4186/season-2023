@@ -1,16 +1,13 @@
 package frc.robot
 
-import com.kauailabs.navx.frc.AHRS
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.networktables.NetworkTable
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.ADIS16448_IMU
-import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Encoder
-import edu.wpi.first.wpilibj.I2C
-import edu.wpi.first.wpilibj.SerialPort
 import edu.wpi.first.wpilibj.TimedRobot
-import edu.wpi.first.wpilibj.interfaces.Gyro
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -20,9 +17,14 @@ import frc.commands.Commands.DriveCommands.cheesy
 import frc.commands.Commands.DriveCommands.raw
 import frc.commands.balancing.GyroBalance
 import frc.robot.definition.Definition
+import frc.vision.LimelightRunner
+import frc.vision.VisionRunner
 
 const val MAX_SPEED_ENCODER = 2000
 //joystick * ^^ = input to pids
+
+
+
 class Robot(private val definition: Definition) : TimedRobot() {
     private enum class DriveMode {
         Raw,
@@ -51,6 +53,8 @@ class Robot(private val definition: Definition) : TimedRobot() {
     private val driveModeChooser = SendableChooser<DriveMode>()
 
     private val intakeMotor = CANSparkMax(13, CANSparkMaxLowLevel.MotorType.kBrushless)
+
+    private val limelight = definition.subsystems.driveTrain.vision
 
     override fun robotInit() {
         definition.subsystems.driveTrain.initialize()
@@ -97,16 +101,17 @@ class Robot(private val definition: Definition) : TimedRobot() {
 
     override fun teleopInit() {
         gyro.reset();
+        limelight.periodic()
 
         when (driveModeChooser.selected) {
             DriveMode.Cheesy -> definition.cheesy()
             DriveMode.Raw -> definition.raw()
             else -> definition.raw()
         }.schedule()
+
     }
 
     override fun teleopPeriodic() {
-
     }
 
     override fun teleopExit() {

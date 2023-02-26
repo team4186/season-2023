@@ -24,14 +24,14 @@ val ShinDestroyer = Definition(
             invert = false
         ),
         driveRight = driveCTRMotors(
-            lead = WPI_TalonSRX(8),
-            follower0 = WPI_VictorSPX(4),
-            follower1 = WPI_VictorSPX(6),
+            lead = WPI_TalonSRX(14),
+            follower0 = WPI_VictorSPX(15),
+            follower1 = WPI_VictorSPX(13),
             invert = true
         ),
         hDrive = driveCTRMotors(
-            lead = WPI_TalonSRX(9),
-            follower0 = WPI_VictorSPX(7),
+            lead = WPI_TalonSRX(0),
+            follower0 = WPI_VictorSPX(0),
             follower1 = WPI_VictorSPX(0), //SOMEONE PLEASE PUT A Victor ON TEST ROBOT
             invert = true
         ),

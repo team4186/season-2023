@@ -51,10 +51,6 @@ class TeleopDrive(
     }
 
     private fun attenuated(value: Double): Double {
-        return if (value > 0) {
-            0.5 * value.pow(2)
-        } else {
-            -0.5 * value.pow(2)
-        }
+        return 0.5 * value.absoluteValue.pow(2).withSign(value)
     }
 }

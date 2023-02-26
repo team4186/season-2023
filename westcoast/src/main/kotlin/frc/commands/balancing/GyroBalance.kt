@@ -26,10 +26,11 @@ class GyroBalance(
         forwardPower = forward.calculate(gyro.gyroAngleY, desiredAngle).coerceIn(-0.2865, 0.2865)
         drive.arcade(
             forwardPower,
-            turn.calculate(gyro.gyroAngleX, desiredAngle).coerceIn(0.0, 0.0),
-            // I don't think this currently aligns to straight?
+            turn.calculate(-gyro.gyroAngleZ, desiredAngle).coerceIn(-0.2, -0.2),
+            //ZZZZZZZZZZZZZZZ???????????????????
             false
         )
+
     }
 
     override fun end(interrupted: Boolean) {

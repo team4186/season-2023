@@ -12,7 +12,9 @@ class LimelightRunner(
 
     override fun periodic() {
         SmartDashboard.putBoolean("Has Target?", hasTarget)
-        SmartDashboard.putNumber("Angle Offset", xOffset)
+        SmartDashboard.putNumber("X Offset", xOffset)
+        SmartDashboard.putNumber("Y Offset", yOffset)
+        SmartDashboard.putNumber("% of Image", targetArea)
         SmartDashboard.putNumber("Distance", Units.metersToInches(distance))
     }
 
@@ -24,21 +26,29 @@ class LimelightRunner(
 
     override val xOffset: Double get() = if (hasTarget) table.getEntry("tx").getDouble(0.0) else 0.0
     override val yOffset: Double get() = table.getEntry("ty").getDouble(0.0)
+    override val targetArea: Double get() = table.getEntry("ta").getDouble(0.0)
+
+    override val distance: Double get() {
+        val targetDistance = 27.05
+        val distance = 0.0  // change
+
+        return if (hasTarget) distance else Double.NaN
+    }
 
     //Subject to change
-    override val distance: Double
-        get() {
-            val targetHeight = 2.6416
-            val cameraHeight = 0.81 //Subject to change
-
-            val cameraAngle = 50.0 //Subject to change (ish)
-
-            val targetAngle: Double = yOffset
-            val totalAngleRad = Units.degreesToRadians(cameraAngle + targetAngle)
-            val distance = (targetHeight - cameraHeight) / tan(totalAngleRad)
-
-            return if (hasTarget) distance else Double.NaN
-        }
+//  override val distance: Double
+//        get() {
+//            val targetHeight = 2.6416
+//            val cameraHeight = 0.81 //Subject to change
+//
+//            val cameraAngle = 50.0 //Subject to change (ish)
+//
+//            val targetAngle: Double = yOffset
+//            val totalAngleRad = Units.degreesToRadians(cameraAngle + targetAngle)
+//            val distance = (targetHeight - cameraHeight) / tan(totalAngleRad)
+//
+//            return if (hasTarget) distance else Double.NaN
+//        }
 
 
     override fun setLight(mode: Boolean) {
