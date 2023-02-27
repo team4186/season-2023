@@ -101,17 +101,16 @@ class Robot(private val definition: Definition) : TimedRobot() {
 
     override fun teleopInit() {
         gyro.reset();
-        limelight.periodic()
 
         when (driveModeChooser.selected) {
             DriveMode.Cheesy -> definition.cheesy()
             DriveMode.Raw -> definition.raw()
             else -> definition.raw()
         }.schedule()
-
     }
 
     override fun teleopPeriodic() {
+        limelight.periodic()
     }
 
     override fun teleopExit() {
