@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.MotorSafety
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.commands.elevator.ZeroElevator
 
 //change constant values
 const val CARRIAGE_END = 1000.0
@@ -44,19 +45,12 @@ class ElevatorSubsystem(
         }
     }
 
+
     fun stopAll() {
         carriageMotor.stopMotor()
         stageTwoMotor.stopMotor()
         wristMotor.stopMotor()
         motorSafety.feed() //what do?
-    }
-
-    fun initialize() {
-
-    }
-
-    override fun periodic() {
-
     }
 
     fun setCarriageMotor(input: Double) {

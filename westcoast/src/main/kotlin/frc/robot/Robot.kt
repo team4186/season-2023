@@ -18,6 +18,7 @@ import frc.commands.drive.TeleopDrive
 import frc.commands.elevator.MoveCarriage
 import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
+import frc.commands.elevator.ZeroElevator
 import frc.subsystems.*
 import frc.vision.LimelightRunner
 
@@ -101,18 +102,24 @@ class Robot : TimedRobot() {
                     STAGE_TWO_END
                 )
             ),
-        Trigger { joystick.getRawButton(8) }
+        Trigger { joystick.getRawButton(6) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     0.0
                 )
             ),
-        Trigger { joystick.getRawButton(8) }
+        Trigger { joystick.getRawButton(7) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     WRIST_END
+                )
+            ),
+        Trigger { joystick.getRawButton(10) && joystick.getRawButton(11) }
+            .onTrue(
+                ZeroElevator(
+                    elevatorSubsystem
                 )
             )
     )
@@ -148,7 +155,14 @@ class Robot : TimedRobot() {
 
     override fun autonomousInit() {
         val autonomous = autonomousChooser.selected
-        autonomous?.schedule()
+
+        val zero = ZeroElevator(elevatorSubsystem)
+        val command = if (autonomous != null) {
+            zero.andThen(autonomous)
+        } else {
+            zero
+        }
+        command.schedule()
     }
 
     override fun autonomousPeriodic() {
