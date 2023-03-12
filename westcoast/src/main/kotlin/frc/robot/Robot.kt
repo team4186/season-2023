@@ -43,12 +43,15 @@ class Robot : TimedRobot() {
     private val gyroBalance = GyroBalance(
         forward = PIDController(
             0.05, 0.0015, 0.002
+        // main PID for balance that needs to be adjusted
+        // power first until oscillates, I until no oscillations, then D until fast
         ).apply {
             enableContinuousInput(-180.0, 180.0)
             setTolerance(1.5)
         },
         turn = PIDController(
-            0.0, 0.0, 0.0
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until no oscillations, then D until fast
         ),
         drive = driveTrainSubsystem,
         gyro = gyro

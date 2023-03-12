@@ -20,12 +20,13 @@ class GyroBalance(
         //no reset for pigeon?
     }
 
+    //pid definitions are in Robot.kt
     override fun execute() {
         forwardPower = forward.calculate(gyro.pitch, desiredAngle).coerceIn(-0.2865, 0.2865)
         drive.arcade(
             forwardPower,
-            turn.calculate(-gyro.yaw, desiredAngle).coerceIn(-0.2, -0.2),
-            //ZZZZZZZZZZZZZZZ???????????????????
+            turn.calculate(-gyro.yaw, desiredAngle).coerceIn(-0.2, -0.2), // if this is going the wrong direction swap signs
+            //yaw (z axis) should align robot to straight
             false
         )
 
