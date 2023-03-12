@@ -6,11 +6,11 @@ import frc.subsystems.DriveTrainSubsystem
 import frc.vision.VisionRunner
 
 class SetupShot(
-        private val turn: PIDController,
-        private val forward: PIDController,
-        private val drive: DriveTrainSubsystem,
-        private val vision: VisionRunner,
-        private val distance: () -> Double
+    private val turn: PIDController,
+    private val forward: PIDController,
+    private val drive: DriveTrainSubsystem,
+    private val vision: VisionRunner,
+    private val distance: () -> Double
 ) : CommandBase() {
 
     private var turnOnTarget = 0
@@ -28,9 +28,9 @@ class SetupShot(
 
     override fun execute() {
         drive.arcade(
-                forward.calculate(vision.distance, distance()).coerceIn(-0.1, 0.1),
-                -turn.calculate(vision.xOffset, 0.0).coerceIn(-0.2, 0.2),
-                false
+            forward.calculate(vision.distance, distance()).coerceIn(-0.1, 0.1),
+            -turn.calculate(vision.xOffset, 0.0).coerceIn(-0.2, 0.2),
+            false
         )
         turnOnTarget = if (turn.atSetpoint()) turnOnTarget + 1 else 0
         forwardOnTarget = if (forward.atSetpoint()) forwardOnTarget + 1 else 0

@@ -7,13 +7,13 @@ import frc.subsystems.DriveTrainSubsystem
 
 // THIS CLASS IS UNTUNED, PLEASE DO NOT USE IT UNTIL TUNED
 class PerfectTurn(
-        private val angle: Double,
-        private val angleMultiplier: Double,
-        private val left: ProfiledPIDController,
-        private val right: ProfiledPIDController,
-        private val drive: DriveTrainSubsystem,
-        private val rightEncoder: Encoder,
-        private val leftEncoder: Encoder
+    private val angle: Double,
+    private val angleMultiplier: Double,
+    private val left: ProfiledPIDController,
+    private val right: ProfiledPIDController,
+    private val drive: DriveTrainSubsystem,
+    private val rightEncoder: Encoder,
+    private val leftEncoder: Encoder
 ) : CommandBase() {
     private var wait = 0
 
@@ -29,9 +29,9 @@ class PerfectTurn(
     override fun execute() {
         val target = angle * angleMultiplier
         drive.tank(
-                left = left.calculate(-leftEncoder.distance, target).coerceIn(-0.4, 0.4),
-                right = right.calculate(-rightEncoder.distance, -target).coerceIn(-0.4, 0.4),
-                squareInputs = false
+            left = left.calculate(-leftEncoder.distance, target).coerceIn(-0.4, 0.4),
+            right = right.calculate(-rightEncoder.distance, -target).coerceIn(-0.4, 0.4),
+            squareInputs = false
         )
         wait = if (right.atGoal() && left.atGoal()) wait + 1 else 0
     }

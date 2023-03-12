@@ -2,10 +2,8 @@ package frc.vision
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.networktables.NetworkTable
-import edu.wpi.first.networktables.NetworkTableEntry
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import kotlin.math.tan
 
 class LimelightRunner(
     private val table: NetworkTable = NetworkTableInstance.getDefault().getTable("limelight")
@@ -29,12 +27,13 @@ class LimelightRunner(
     override val yOffset: Double get() = table.getEntry("ty").getDouble(0.0)
     override val targetArea: Double get() = table.getEntry("ta").getDouble(0.0)
 
-    override val distance: Double get() {
-        val targetDistance = 27.05
-        val distance = 0.0  // change
+    override val distance: Double
+        get() {
+            val targetDistance = 27.05
+            val distance = 0.0  // change
 
-        return if (hasTarget) distance else Double.NaN
-    }
+            return if (hasTarget) distance else Double.NaN
+        }
 
     //Subject to change
 //  override val distance: Double

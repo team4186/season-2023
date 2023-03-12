@@ -8,21 +8,21 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 class DriveTrainSubsystem(
-        private val leftMotor: MotorController = driveSparkMaxMotors(
-                lead = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
-                follower0 = CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless),
-                invert = false,
-        ),
-        private val rightMotor: MotorController = driveSparkMaxMotors(
-                lead = CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
-                follower0 = CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless),
-                invert = true,
-        ),
-        private val hMotor: MotorController = driveSparkMaxMotors(
-                lead = CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
-                follower0 = CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
-                invert = false,
-        )
+    private val leftMotor: MotorController = driveSparkMaxMotors(
+        lead = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
+        follower0 = CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless),
+        invert = false,
+    ),
+    private val rightMotor: MotorController = driveSparkMaxMotors(
+        lead = CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
+        follower0 = CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless),
+        invert = true,
+    ),
+    private val hMotor: MotorController = driveSparkMaxMotors(
+        lead = CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
+        follower0 = CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
+        invert = false,
+    )
 ) : SubsystemBase() {
     private val drive: DifferentialDrive = DifferentialDrive(leftMotor, rightMotor)
 
@@ -67,9 +67,9 @@ class DriveTrainSubsystem(
 }
 
 fun driveSparkMaxMotors(
-        lead: CANSparkMax,
-        follower0: CANSparkMax,
-        invert: Boolean
+    lead: CANSparkMax,
+    follower0: CANSparkMax,
+    invert: Boolean
 ): MotorController {
     follower0.follow(lead)
     follower0.inverted = invert

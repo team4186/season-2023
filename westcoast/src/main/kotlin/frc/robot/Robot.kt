@@ -11,10 +11,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.commands.balancing.GyroBalance
 import frc.commands.drive.CheesyDrive
 import frc.commands.drive.TeleopDrive
-import frc.subsystems.DriveTrainSubsystem
+import frc.commands.elevator.MoveCarriage
+import frc.commands.elevator.MoveStageTwo
+import frc.commands.elevator.MoveWrist
+import frc.subsystems.*
 import frc.vision.LimelightRunner
 
 const val MAX_SPEED_ENCODER = 2000
@@ -33,19 +37,20 @@ class Robot : TimedRobot() {
     private val leftEncoder = Encoder(0, 1, true)
     private val rightEncoder = Encoder(2, 3)
     private val driveTrainSubsystem = DriveTrainSubsystem()
+    private val elevatorSubsystem = ElevatorSubsystem()
 
     private val gyroBalance = GyroBalance(
-            forward = PIDController(
-                    0.05, 0.0015, 0.002
-            ).apply {
-                enableContinuousInput(-180.0, 180.0)
-                setTolerance(1.5)
-            },
-            turn = PIDController(
-                    0.0, 0.0, 0.0
-            ),
-            drive = driveTrainSubsystem,
-            gyro = gyro
+        forward = PIDController(
+            0.05, 0.0015, 0.002
+        ).apply {
+            enableContinuousInput(-180.0, 180.0)
+            setTolerance(1.5)
+        },
+        turn = PIDController(
+            0.0, 0.0, 0.0
+        ),
+        drive = driveTrainSubsystem,
+        gyro = gyro
     )
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
@@ -54,17 +59,62 @@ class Robot : TimedRobot() {
 
     private val limelight = LimelightRunner()
     private val cheesyDrive = CheesyDrive(
-            inputThrottle = { joystick.y },
-            inputYaw = { joystick.x },
-            drive = driveTrainSubsystem,
-            sensitivityHigh = 0.5,
-            sensitivityLow = 0.5
+        inputThrottle = { joystick.y },
+        inputYaw = { joystick.x },
+        drive = driveTrainSubsystem,
+        sensitivityHigh = 0.5,
+        sensitivityLow = 0.5
     )
     private val rawDrive = TeleopDrive(
-            inputThrottle = { joystick.y },
-            inputTurn = { joystick.twist },
-            inputYaw = { joystick.x },
-            drive = driveTrainSubsystem
+        inputThrottle = { joystick.y },
+        inputTurn = { joystick.twist },
+        inputYaw = { joystick.x },
+        drive = driveTrainSubsystem
+    )
+
+    private val triggers = listOf(
+        Trigger { joystick.getRawButton(10) }
+            .onTrue(
+                MoveCarriage(
+                    elevatorSubsystem,
+                    0.0
+                )
+            ),
+        Trigger { joystick.getRawButton(11) }
+            .onTrue(
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                )
+            ),
+        Trigger { joystick.getRawButton(8) }
+            .onTrue(
+                MoveStageTwo(
+                    elevatorSubsystem,
+                    0.0
+                )
+            ),
+        Trigger { joystick.getRawButton(9) }
+            .onTrue(
+                MoveStageTwo(
+                    elevatorSubsystem,
+                    STAGE_TWO_END
+                )
+            ),
+        Trigger { joystick.getRawButton(8) }
+            .onTrue(
+                MoveWrist(
+                    elevatorSubsystem,
+                    0.0
+                )
+            ),
+        Trigger { joystick.getRawButton(8) }
+            .onTrue(
+                MoveWrist(
+                    elevatorSubsystem,
+                    WRIST_END
+                )
+            )
     )
 
     override fun robotInit() {
@@ -111,6 +161,7 @@ class Robot : TimedRobot() {
     override fun teleopInit() {
         // gyro.reset();
 
+
         when (driveModeChooser.selected) {
             DriveMode.Cheesy -> cheesyDrive
             DriveMode.Raw -> rawDrive
@@ -120,6 +171,7 @@ class Robot : TimedRobot() {
 
     override fun teleopPeriodic() {
         limelight.periodic()
+
     }
 
     override fun teleopExit() {

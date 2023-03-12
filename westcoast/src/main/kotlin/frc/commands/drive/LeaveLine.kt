@@ -10,8 +10,8 @@ class LeaveLine(
     private val left: ProfiledPIDController,
     private val right: ProfiledPIDController,
     private val drive: DriveTrainSubsystem,
-        private val rightEncoder: Encoder,
-        private val leftEncoder: Encoder,
+    private val rightEncoder: Encoder,
+    private val leftEncoder: Encoder,
 ) : CommandBase() {
 
     private var wait = 0

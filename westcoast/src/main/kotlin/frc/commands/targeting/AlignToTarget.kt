@@ -6,21 +6,21 @@ import frc.subsystems.DriveTrainSubsystem
 import frc.vision.VisionRunner
 
 class AlignToTarget(
-        controller: PIDController,
-        private val drive: DriveTrainSubsystem,
-        private val vision: VisionRunner
+    controller: PIDController,
+    private val drive: DriveTrainSubsystem,
+    private val vision: VisionRunner
 ) : PIDCommand(
-        controller,
-        { vision.xOffset },
-        0.0,
-        {
-            drive.holonomic(
-                    forward = 0.0,
-                    turn = if (vision.hasTarget) it.coerceIn(-0.4, 0.4) else 0.0,
-                    strafe = if (vision.hasTarget) it.coerceIn(-0.4, 0.4) else 0.0,
-                    squareInputs = false
-            )
-        }
+    controller,
+    { vision.xOffset },
+    0.0,
+    {
+        drive.holonomic(
+            forward = 0.0,
+            turn = if (vision.hasTarget) it.coerceIn(-0.4, 0.4) else 0.0,
+            strafe = if (vision.hasTarget) it.coerceIn(-0.4, 0.4) else 0.0,
+            squareInputs = false
+        )
+    }
 ) {
 
     private var wait = 0
