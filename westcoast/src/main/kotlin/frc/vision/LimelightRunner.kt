@@ -8,12 +8,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 class LimelightRunner(
     private val table: NetworkTable = NetworkTableInstance.getDefault().getTable("limelight")
 ) : VisionRunner {
-
     override fun periodic() {
         SmartDashboard.putBoolean("Has Target?", hasTarget)
         SmartDashboard.putNumber("X Offset", xOffset)
         SmartDashboard.putNumber("Y Offset", yOffset)
-        SmartDashboard.putNumber("% of Image", targetArea)
+        SmartDashboard.putNumber("% of Image", tagArea)
         SmartDashboard.putNumber("Distance", Units.metersToInches(distance))
     }
 
@@ -25,12 +24,13 @@ class LimelightRunner(
 
     override val xOffset: Double get() = if (hasTarget) table.getEntry("tx").getDouble(0.0) else 0.0
     override val yOffset: Double get() = table.getEntry("ty").getDouble(0.0)
-    override val targetArea: Double get() = table.getEntry("ta").getDouble(0.0)
+    override val tagArea: Double get() = table.getEntry("ta").getDouble(0.0)
 
     override val distance: Double
         get() {
-            val targetDistance = 27.05
-            val distance = 0.0  // change
+            val targetDistance = 28.5 //inches away from limelight
+            //at this target distance, the targetArea is 0.038 (3.8%) rough estimate needs adjusting
+            val distance = targetDistance * tagArea / 0.038 // change
 
             return if (hasTarget) distance else Double.NaN
         }

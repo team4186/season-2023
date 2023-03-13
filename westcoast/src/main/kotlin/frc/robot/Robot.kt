@@ -4,7 +4,6 @@ import com.ctre.phoenix.sensors.Pigeon2
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
@@ -12,8 +11,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.Trigger
+import frc.commands.Intake.Eject
+import frc.commands.Intake.Intake
 import frc.commands.balancing.GyroBalance
 import frc.commands.drive.CheesyDrive
+import frc.commands.drive.LeaveLine
 import frc.commands.drive.TeleopDrive
 import frc.commands.elevator.MoveCarriage
 import frc.commands.elevator.MoveStageTwo
@@ -35,23 +37,28 @@ class Robot : TimedRobot() {
     private val joystick = Joystick(0)
 
     private val gyro = Pigeon2(10, "rio")
-    private val leftEncoder = Encoder(0, 1, true)
-    private val rightEncoder = Encoder(2, 3)
+
+    //    private val leftEncoder = Encoder(0, 1, true)
+//    private val rightEncoder = Encoder(2, 3)
     private val driveTrainSubsystem = DriveTrainSubsystem()
+    private val leftEncoder = driveTrainSubsystem.leftMotor.encoder
+    private val rightEncoder = driveTrainSubsystem.rightMotor.encoder
+    private val hEncoder = driveTrainSubsystem.hMotor.encoder
     private val elevatorSubsystem = ElevatorSubsystem()
+    private val intakeSubsystem = IntakeSubsystem()
 
     private val gyroBalance = GyroBalance(
         forward = PIDController(
             0.05, 0.0015, 0.002
-        // main PID for balance that needs to be adjusted
-        // power first until oscillates, I until no oscillations, then D until fast
+            // main PID for balance that needs to be adjusted
+            // power first until oscillates, I until gets there fast, then D until no oscillations
         ).apply {
             enableContinuousInput(-180.0, 180.0)
             setTolerance(1.5)
         },
         turn = PIDController(
             0.05, 0.0, 0.0
-            // power first until oscillates, I until no oscillations, then D until fast
+            // power first until oscillates, I until gets there fast, then D until no oscillations
         ),
         drive = driveTrainSubsystem,
         gyro = gyro
@@ -77,63 +84,102 @@ class Robot : TimedRobot() {
     )
 
     private val triggers = listOf(
-        Trigger { joystick.getRawButton(10) }
-            .onTrue(
-                MoveCarriage(
-                    elevatorSubsystem,
-                    0.0
+        //INTAKE TRIGGERS
+        Trigger { joystick.getRawButton(1) }
+            .whileTrue(
+                Intake(
+                    intakeSubsystem
                 )
             ),
-        Trigger { joystick.getRawButton(11) }
-            .onTrue(
-                MoveCarriage(
-                    elevatorSubsystem,
-                    CARRIAGE_END
+        Trigger { joystick.getRawButton(2) }
+            .whileTrue(
+                Eject(
+                    intakeSubsystem
                 )
+            ),
+
+        //ZERO
+        Trigger { joystick.getRawButton(5) }
+            .whileTrue(
+                ZeroElevator(
+                    elevatorSubsystem
+                )
+            ),
+
+        //STAGE TWO
+        Trigger { joystick.getRawButton(7) }
+            .onTrue(
+                MoveStageTwo(
+                    elevatorSubsystem,
+                    0.0
+                ).until { elevatorSubsystem.stageLimitBottom.get() }
             ),
         Trigger { joystick.getRawButton(8) }
             .onTrue(
                 MoveStageTwo(
                     elevatorSubsystem,
-                    0.0
-                )
-            ),
-        Trigger { joystick.getRawButton(9) }
-            .onTrue(
-                MoveStageTwo(
-                    elevatorSubsystem,
                     STAGE_TWO_END
-                )
+                ).until { elevatorSubsystem.stageLimitTop.get() }
             ),
-        Trigger { joystick.getRawButton(6) }
+
+        //MOVE WRIST
+        Trigger { joystick.getRawButton(9) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     0.0
-                )
+                ).until { elevatorSubsystem.wristLimitBottom.get() }
             ),
-        Trigger { joystick.getRawButton(7) }
+        Trigger { joystick.getRawButton(10) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     WRIST_END
-                )
+                ).until { elevatorSubsystem.wristLimitTop.get() }
             ),
-        Trigger { joystick.getRawButton(10) && joystick.getRawButton(11) }
+
+        //MOVE CARRIAGE
+        Trigger { joystick.getRawButton(11) }
             .onTrue(
-                ZeroElevator(
-                    elevatorSubsystem
-                )
-            )
+                MoveCarriage(
+                    elevatorSubsystem,
+                    0.0
+                ).until { elevatorSubsystem.carriageLimitBottom.get() }
+            ),
+        Trigger { joystick.getRawButton(12) }
+            .onTrue(
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                ).until { elevatorSubsystem.carriageLimitTop.get() }
+            ),
+
     )
 
+    var gyroCompassStartPos = 0.0
     override fun robotInit() {
         driveTrainSubsystem.initialize()
+        gyro.zeroGyroBiasNow()
+        gyroCompassStartPos = gyro.absoluteCompassHeading
 
         with(autonomousChooser) {
+            setDefaultOption(
+                "Default (move out)",
+                LeaveLine(
+                    distance = 1.0, // 5m for comp
+                    left = PIDController(0.5, 0.0, 0.0),
+                    right = PIDController(0.5, 0.0, 0.0),
+                    drive = driveTrainSubsystem,
+                    rightEncoder = { rightEncoder.position },
+                    leftEncoder = { leftEncoder.position }
+                )
+            )
+
             addOption("Balance", gyroBalance)
             SmartDashboard.putData("Autonomous Mode", this)
         }
+
+
 
         with(driveModeChooser) {
             setDefaultOption("Raw", DriveMode.Raw)
@@ -142,18 +188,30 @@ class Robot : TimedRobot() {
         }
     }
 
-    private var leftMaxVal = 0.0
-    private var rightMaxVal = 0.0
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
-        leftMaxVal = maxOf(leftEncoder.rate, leftMaxVal)
-        rightMaxVal = maxOf(rightEncoder.rate, rightMaxVal)
-        SmartDashboard.putNumber("Left Encoder", leftMaxVal)
-        SmartDashboard.putNumber("Right Encoder", rightMaxVal)
+        SmartDashboard.putNumber("Left Encoder", leftEncoder.position)
+        SmartDashboard.putNumber("Right Encoder", rightEncoder.position)
+        SmartDashboard.putNumber("H Drive Encoder", hEncoder.position)
+
         SmartDashboard.putNumber("Yaw", gyro.yaw)
         SmartDashboard.putNumber("Pitch", gyro.pitch)
         SmartDashboard.putNumber("Roll", gyro.roll)
         SmartDashboard.putNumber("Forward Power", gyroBalance.forwardPower)
+
+        with(elevatorSubsystem) {
+            SmartDashboard.putNumber("Carriage", carriageMotor.encoder.position)
+            SmartDashboard.putNumber("Stage Two", stageTwoMotor.encoder.position)
+            SmartDashboard.putNumber("Wrist", wristMotor.encoder.position)
+
+            SmartDashboard.putBoolean("carriageLimitTop", carriageLimitTop.get())
+            SmartDashboard.putBoolean("carriageLimitBottom", carriageLimitBottom.get())
+            SmartDashboard.putBoolean("stageLimitTop", stageLimitTop.get())
+            SmartDashboard.putBoolean("stageLimitBottom", stageLimitBottom.get())
+            SmartDashboard.putBoolean("wristLimitTop", wristLimitTop.get())
+            SmartDashboard.putBoolean("wristLimitBottom", wristLimitBottom.get())
+        }
+        SmartDashboard.putBoolean("Intake Sensor", intakeSubsystem.intakeLimit.get())
     }
 
     override fun autonomousInit() {

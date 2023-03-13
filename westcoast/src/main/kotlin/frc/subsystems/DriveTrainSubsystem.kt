@@ -4,21 +4,20 @@ import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.wpilibj.MotorSafety
 import edu.wpi.first.wpilibj.drive.DifferentialDrive
-import edu.wpi.first.wpilibj.motorcontrol.MotorController
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 class DriveTrainSubsystem(
-    private val leftMotor: MotorController = driveSparkMaxMotors(
+    val leftMotor: CANSparkMax = driveSparkMaxMotors(
         lead = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
         follower0 = CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless),
         invert = false,
     ),
-    private val rightMotor: MotorController = driveSparkMaxMotors(
+    val rightMotor: CANSparkMax = driveSparkMaxMotors(
         lead = CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
         follower0 = CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless),
         invert = true,
     ),
-    private val hMotor: MotorController = driveSparkMaxMotors(
+    val hMotor: CANSparkMax = driveSparkMaxMotors(
         lead = CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
         follower0 = CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
         invert = false,
@@ -70,7 +69,7 @@ fun driveSparkMaxMotors(
     lead: CANSparkMax,
     follower0: CANSparkMax,
     invert: Boolean
-): MotorController {
+): CANSparkMax {
     follower0.follow(lead)
     follower0.inverted = invert
 

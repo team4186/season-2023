@@ -6,7 +6,7 @@ import frc.subsystems.ElevatorSubsystem
 
 class MoveWrist(
     private val elevator: ElevatorSubsystem,
-    private val position: Double
+    position: Double
 ) : PIDCommand(
     PIDController(0.05, 0.0, 0.0),
     { elevator.wristMotor.encoder.position },
@@ -18,4 +18,8 @@ class MoveWrist(
             elevator.setWristMotor(speed)
         }
     }
-)
+){
+    override fun end(interrupted: Boolean) {
+        elevator.stopAll()
+    }
+}

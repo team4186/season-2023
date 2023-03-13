@@ -6,16 +6,16 @@ import frc.subsystems.ElevatorSubsystem
 
 class MoveStageTwo(
     private val elevator: ElevatorSubsystem,
-    private val position: Double
+    position: Double
 ) : PIDCommand(
     PIDController(0.05, 0.0, 0.0),
     { elevator.stageTwoMotor.encoder.position },
     position,
     { speed ->
-        if (elevator.stageLimitTop.get() && elevator.stageLimitBottom.get()) {
-            elevator.stageTwoMotor.stopMotor()
-        } else {
-            elevator.setStageTwo(speed)
-        }
+        elevator.setStageTwo(speed)
     }
-)
+) {
+    override fun end(interrupted: Boolean) {
+        elevator.stopAll()
+    }
+}
