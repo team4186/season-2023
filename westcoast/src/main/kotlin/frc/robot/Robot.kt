@@ -1,8 +1,6 @@
 package frc.robot
 
 import com.ctre.phoenix.sensors.Pigeon2
-import com.revrobotics.CANSparkMax
-import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.TimedRobot
@@ -21,10 +19,11 @@ import frc.commands.elevator.MoveCarriage
 import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
 import frc.commands.elevator.ZeroElevator
+import frc.commands.targeting.AlignToTarget
 import frc.subsystems.*
 import frc.vision.LimelightRunner
 
-const val MAX_SPEED_ENCODER = 2000
+//const val MAX_SPEED_ENCODER = 2000
 //joystick * ^^ = input to pids
 
 
@@ -66,8 +65,6 @@ class Robot : TimedRobot() {
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
 
-    private val intakeMotor = CANSparkMax(13, CANSparkMaxLowLevel.MotorType.kBrushless)
-
     private val limelight = LimelightRunner()
     private val cheesyDrive = CheesyDrive(
         inputThrottle = { joystick.y },
@@ -83,6 +80,25 @@ class Robot : TimedRobot() {
         drive = driveTrainSubsystem
     )
 
+    private val alignToTarget = AlignToTarget(
+        forward = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        turn = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        strafe = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        driveTrainSubsystem,
+        limelight,
+        gyro,
+        { gyroCompassStartPos }
+    )
+
     private val triggers = listOf(
         //INTAKE TRIGGERS
         Trigger { joystick.getRawButton(1) }
@@ -96,6 +112,11 @@ class Robot : TimedRobot() {
                 Eject(
                     intakeSubsystem
                 )
+            ),
+
+        Trigger { joystick.getRawButton(3) }
+            .onTrue(
+                alignToTarget
             ),
 
         //ZERO
@@ -154,7 +175,7 @@ class Robot : TimedRobot() {
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
 
-    )
+        )
 
     var gyroCompassStartPos = 0.0
     override fun robotInit() {
@@ -178,8 +199,6 @@ class Robot : TimedRobot() {
             addOption("Balance", gyroBalance)
             SmartDashboard.putData("Autonomous Mode", this)
         }
-
-
 
         with(driveModeChooser) {
             setDefaultOption("Raw", DriveMode.Raw)
@@ -246,7 +265,6 @@ class Robot : TimedRobot() {
 
     override fun teleopPeriodic() {
         limelight.periodic()
-
     }
 
     override fun teleopExit() {

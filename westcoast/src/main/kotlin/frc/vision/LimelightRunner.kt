@@ -30,7 +30,7 @@ class LimelightRunner(
         get() {
             val targetDistance = 28.5 //inches away from limelight
             //at this target distance, the targetArea is 0.038 (3.8%) rough estimate needs adjusting
-            val distance = targetDistance * tagArea / 0.038 // change
+            val distance = targetDistance * tagArea / 0.038
 
             return if (hasTarget) distance else Double.NaN
         }
