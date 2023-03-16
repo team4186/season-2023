@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 //change constant values
 const val CARRIAGE_END = 1000.0
 const val STAGE_TWO_END = 1000.0
-const val WRIST_END = 200.0
+const val WRIST_END = -91.7
 
 class ElevatorSubsystem(
     //set IDs
