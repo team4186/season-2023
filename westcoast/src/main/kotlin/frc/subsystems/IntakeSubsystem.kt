@@ -7,12 +7,10 @@ import edu.wpi.first.wpilibj.MotorSafety
 import edu.wpi.first.wpilibj2.command.CommandBase
 
 class IntakeSubsystem(
-    val intakeMotor0: CANSparkMax = intakeSparkMaxMotors(
-        lead = CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless)
+    val intakeMotors: CANSparkMax = intakeSparkMaxMotors(
+        lead = CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless),
+        follower =  CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless)
     ),
-    val intakeMotor1: CANSparkMax = intakeSparkMaxMotors(
-        lead = CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless)
-    )
 ) : CommandBase() {
     var intakeLimit: DigitalInput = DigitalInput(0)
 
@@ -28,24 +26,27 @@ class IntakeSubsystem(
 
 
     fun stop() {
-        intakeMotor0.stopMotor()
-        intakeMotor1.stopMotor()
+        intakeMotors.stopMotor()
         motorSafety.feed()
     }
 
     fun setIntakeMotors(input: Double) {
-        intakeMotor0.set(input)
-        intakeMotor1.set(-input)
+        intakeMotors.set(input)
         motorSafety.feed()
     }
 }
 
 fun intakeSparkMaxMotors(
-    lead: CANSparkMax
+    lead: CANSparkMax,
+    follower: CANSparkMax
 ): CANSparkMax {
     lead.idleMode = CANSparkMax.IdleMode.kBrake
+    follower.idleMode = CANSparkMax.IdleMode.kBrake
+
+    follower.follow(lead, true)
 
     lead.enableVoltageCompensation(11.0)
+    follower.enableVoltageCompensation(11.0)
 
     return lead
 }

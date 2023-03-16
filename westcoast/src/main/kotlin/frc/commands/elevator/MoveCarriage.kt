@@ -11,17 +11,19 @@ class MoveCarriage(
     PIDController(0.05, 0.0, 0.0),
     { elevator.carriageMotor.encoder.position },
     position,
-    { speed ->
-        if (elevator.carriageLimitTop.get() || elevator.carriageLimitBottom.get()) {
-            elevator.carriageMotor.stopMotor()
-        } else {
-            elevator.setCarriageMotor(speed)
+    { velocity ->
+        when {
+            velocity > 0 &&
+                elevator.carriageLimitTop.get() -> elevator.carriageMotor.stopMotor()
+
+            velocity < 0 &&
+                elevator.carriageLimitBottom.get() -> elevator.carriageMotor.stopMotor()
+
+            else -> elevator.setCarriageMotor(velocity)
         }
+
     }
 ) {
-
-
-
     override fun end(interrupted: Boolean) {
         elevator.stopAll()
     }

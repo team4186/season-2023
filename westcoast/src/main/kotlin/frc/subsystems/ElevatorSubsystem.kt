@@ -24,15 +24,26 @@ class ElevatorSubsystem(
     val wristMotor: CANSparkMax = elevatorSparkMaxMotors(
         lead = CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless),
         invert = false
-    )
+    ),
+    val carriageLimitTop: DigitalInput = DigitalInput(4),
+    val carriageLimitBottom: DigitalInput = DigitalInput(5),
+    val stageLimitTop: DigitalInput = DigitalInput(6),
+    val stageLimitBottom: DigitalInput = DigitalInput(3),
+    val wristLimitTop: DigitalInput = DigitalInput(1),
+    val wristLimitBottom: DigitalInput = DigitalInput(2)
 ) : SubsystemBase() {
-    // change channels
-    var carriageLimitTop: DigitalInput = DigitalInput(4)
-    var carriageLimitBottom: DigitalInput = DigitalInput(5)
-    var stageLimitTop: DigitalInput = DigitalInput(6)
-    var stageLimitBottom: DigitalInput = DigitalInput(3)
-    var wristLimitTop: DigitalInput = DigitalInput(1)
-    var wristLimitBottom: DigitalInput = DigitalInput(2)
+
+    override fun periodic() {
+        if (wristMotor.outputCurrent > 20.0){
+            wristMotor.stopMotor()
+        }
+        if (carriageMotor.outputCurrent > 20.0){
+            carriageMotor.stopMotor()
+        }
+        if (stageTwoMotor.outputCurrent > 20.0){
+            stageTwoMotor.stopMotor()
+        }
+    }
 
     private val motorSafety: MotorSafety = object : MotorSafety() {
         override fun stopMotor() {
@@ -43,7 +54,6 @@ class ElevatorSubsystem(
             return "Elevator"
         }
     }
-
 
     fun stopAll() {
         carriageMotor.stopMotor()
@@ -72,7 +82,6 @@ fun elevatorSparkMaxMotors(
     lead: CANSparkMax,
     invert: Boolean
 ): CANSparkMax {
-
     lead.inverted = invert
     lead.idleMode = CANSparkMax.IdleMode.kBrake
 

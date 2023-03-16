@@ -11,8 +11,16 @@ class MoveStageTwo(
     PIDController(0.05, 0.0, 0.0),
     { elevator.stageTwoMotor.encoder.position },
     position,
-    { speed ->
-        elevator.setStageTwo(speed)
+    { velocity ->
+        when {
+            velocity > 0 &&
+                elevator.stageLimitTop.get() -> elevator.carriageMotor.stopMotor()
+
+            velocity < 0 &&
+                elevator.stageLimitBottom.get() -> elevator.carriageMotor.stopMotor()
+
+            else -> elevator.setStageTwo(velocity)
+        }
     }
 ) {
     override fun end(interrupted: Boolean) {

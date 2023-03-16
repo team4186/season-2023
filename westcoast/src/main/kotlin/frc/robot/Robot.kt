@@ -229,8 +229,20 @@ class Robot : TimedRobot() {
             SmartDashboard.putBoolean("stageLimitBottom", stageLimitBottom.get())
             SmartDashboard.putBoolean("wristLimitTop", wristLimitTop.get())
             SmartDashboard.putBoolean("wristLimitBottom", wristLimitBottom.get())
+
+            SmartDashboard.putNumber("Carriage Motor Amps", carriageMotor.outputCurrent)
+            SmartDashboard.putNumber("Carriage Motor Temp", carriageMotor.motorTemperature)
+
+            SmartDashboard.putNumber("Wrist Motor Amps", wristMotor.outputCurrent)
+            SmartDashboard.putNumber("Wrist Motor Temp", wristMotor.motorTemperature)
+
+            SmartDashboard.putNumber("Stage Motor Amps", stageTwoMotor.outputCurrent)
+            SmartDashboard.putNumber("Stage Motor Temp", stageTwoMotor.motorTemperature)
+
         }
         SmartDashboard.putBoolean("Intake Sensor", intakeSubsystem.intakeLimit.get())
+        SmartDashboard.putNumber("Intake Motor Amps", intakeSubsystem.intakeMotors.outputCurrent)
+        SmartDashboard.putNumber("Intake Motor Temp", intakeSubsystem.intakeMotors.motorTemperature)
     }
 
     override fun autonomousInit() {

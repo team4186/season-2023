@@ -11,11 +11,15 @@ class MoveWrist(
     PIDController(0.05, 0.0, 0.0),
     { elevator.wristMotor.encoder.position },
     position,
-    { speed ->
-        if (elevator.wristLimitTop.get() && elevator.wristLimitBottom.get()) {
-            elevator.wristMotor.stopMotor()
-        } else {
-            elevator.setWristMotor(speed)
+    { velocity ->
+        when {
+            velocity > 0 &&
+                elevator.wristLimitTop.get() -> elevator.carriageMotor.stopMotor()
+
+            velocity < 0 &&
+                elevator.wristLimitBottom.get() -> elevator.carriageMotor.stopMotor()
+
+            else -> elevator.setWristMotor(velocity)
         }
     }
 ){
