@@ -25,8 +25,8 @@ class ElevatorSubsystem(
         lead = CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless),
         invert = false
     ),
-    val carriageLimitTop: DigitalInput = DigitalInput(4),
-    val carriageLimitBottom: DigitalInput = DigitalInput(5),
+    val carriageLimitTop: DigitalInput = DigitalInput(5), // originally 4; swap
+    val carriageLimitBottom: DigitalInput = DigitalInput(4), // originally 5; swap
     val stageLimitTop: DigitalInput = DigitalInput(6),
     val stageLimitBottom: DigitalInput = DigitalInput(3),
     val wristLimitTop: DigitalInput = DigitalInput(1),

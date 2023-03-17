@@ -20,6 +20,7 @@ import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
 import frc.commands.elevator.ZeroElevator
 import frc.commands.targeting.AlignToTarget
+import frc.commands.targeting.ConstantlyAlignToTarget
 import frc.subsystems.*
 import frc.vision.LimelightRunner
 
@@ -175,6 +176,15 @@ class Robot : TimedRobot() {
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
 
+        // ALIGN TO TARGET -- maybe faulty -ethan
+
+//        Trigger { joystick.getRawButton(14) } // change button
+//            .onTrue(
+//                alignToTarget()(
+//                    alignToTarget,
+//                    CARRIAGE_END
+//                ).until { alignToTarget.carriageLimitTop.get() }
+//            ),
         )
 
     var gyroCompassStartPos = 0.0
@@ -185,11 +195,11 @@ class Robot : TimedRobot() {
 
         with(autonomousChooser) {
             setDefaultOption(
-                "Default (move out)",
+                "Default/leave line (move out)",
                 LeaveLine(
-                    distance = 1.0, // 5m for comp
-                    left = PIDController(0.5, 0.0, 0.0),
-                    right = PIDController(0.5, 0.0, 0.0),
+                    distance = 5.0, // 5m for comp
+                    left = PIDController(0.25, 0.0, 0.0),
+                    right = PIDController(0.25, 0.0, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position }
