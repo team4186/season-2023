@@ -8,8 +8,12 @@ class Intake(
 ) : CommandBase() {
     override fun execute() {
         with(intake) {
-            if (!intakeLimit.get()) {
+            if (intakeLimit.get()) {
                 setIntakeMotors(0.35)
+            }
+            else
+            {
+                intakeMotors.stopMotor()
             }
         }
     }

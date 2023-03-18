@@ -9,22 +9,22 @@ class ZeroElevator(
 
     override fun execute() {
         with(elevator) {
-            if (!carriageLimitBottom.get()) {
-                setCarriageMotor(0.1)
-            } else {
-                carriageMotor.stopMotor()
-                carriageMotor.encoder.position = 0.0
-            }
-
             if (!stageLimitBottom.get()) {
-                setStageTwo(0.1)
+                setStageTwo(-0.5)
             } else {
                 stageTwoMotor.stopMotor()
                 stageTwoMotor.encoder.position = 0.0
             }
 
-            if (!wristLimitTop.get()) {
-                setWristMotor(0.1)
+            if (!carriageLimitBottom.get() && stageLimitBottom.get()) {
+                setCarriageMotor(-0.7) // motor speed??
+            } else {
+            carriageMotor.stopMotor()
+                carriageMotor.encoder.position = 0.0
+            }
+
+            if (!wristLimitTop.get() && stageLimitBottom.get()) {
+                setWristMotor(0.7)
             } else {
                 wristMotor.stopMotor()
                 wristMotor.encoder.position = 0.0

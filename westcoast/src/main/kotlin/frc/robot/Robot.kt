@@ -81,6 +81,7 @@ class Robot : TimedRobot() {
         drive = driveTrainSubsystem
     )
 
+    private val offset = 0.0
     private val alignToTarget = AlignToTarget(
         forward = PIDController(
             0.05, 0.0, 0.0
@@ -96,13 +97,14 @@ class Robot : TimedRobot() {
         ),
         driveTrainSubsystem,
         limelight,
+        offset,
         gyro,
         { gyroCompassStartPos }
     )
 
     private val triggers = listOf(
         //INTAKE TRIGGERS
-        Trigger { joystick.getRawButton(1) }
+        Trigger { joystick.getRawButton(1)}
             .whileTrue(
                 Intake(
                     intakeSubsystem
@@ -115,13 +117,24 @@ class Robot : TimedRobot() {
                 )
             ),
 
+        //Align to target
         Trigger { joystick.getRawButton(3) }
-            .onTrue(
+            .whileTrue(
+                alignToTarget
+            ),
+
+        Trigger { joystick.getRawButton(4) }
+            .whileTrue(
+                alignToTarget
+            ),
+
+        Trigger { joystick.getRawButton(5) } // change button
+            .whileTrue(
                 alignToTarget
             ),
 
         //ZERO
-        Trigger { joystick.getRawButton(5) }
+        Trigger { joystick.getRawButton(6) }
             .whileTrue(
                 ZeroElevator(
                     elevatorSubsystem
@@ -149,14 +162,14 @@ class Robot : TimedRobot() {
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
-                    0.0
+                    WRIST_END
                 ).until { elevatorSubsystem.wristLimitBottom.get() }
             ),
         Trigger { joystick.getRawButton(10) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
-                    WRIST_END
+                    0.0
                 ).until { elevatorSubsystem.wristLimitTop.get() }
             ),
 
@@ -175,16 +188,6 @@ class Robot : TimedRobot() {
                     CARRIAGE_END
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
-
-        // ALIGN TO TARGET -- maybe faulty -ethan
-
-//        Trigger { joystick.getRawButton(14) } // change button
-//            .onTrue(
-//                alignToTarget()(
-//                    alignToTarget,
-//                    CARRIAGE_END
-//                ).until { alignToTarget.carriageLimitTop.get() }
-//            ),
         )
 
     var gyroCompassStartPos = 0.0
@@ -197,7 +200,7 @@ class Robot : TimedRobot() {
             setDefaultOption(
                 "Default/leave line (move out)",
                 LeaveLine(
-                    distance = 5.0, // 5m for comp
+                    distance = -5.0, // 5m for comp
                     left = PIDController(0.25, 0.0, 0.0),
                     right = PIDController(0.25, 0.0, 0.0),
                     drive = driveTrainSubsystem,
@@ -229,9 +232,9 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("Forward Power", gyroBalance.forwardPower)
 
         with(elevatorSubsystem) {
-            SmartDashboard.putNumber("Carriage", carriageMotor.encoder.position)
-            SmartDashboard.putNumber("Stage Two", stageTwoMotor.encoder.position)
-            SmartDashboard.putNumber("Wrist", wristMotor.encoder.position)
+            SmartDashboard.putNumber("Carriage encoder", carriageMotor.encoder.position)
+            SmartDashboard.putNumber("Stage Two encoder", stageTwoMotor.encoder.position)
+            SmartDashboard.putNumber("Wrist encoder", wristMotor.encoder.position)
 
             SmartDashboard.putBoolean("carriageLimitTop", carriageLimitTop.get())
             SmartDashboard.putBoolean("carriageLimitBottom", carriageLimitBottom.get())
@@ -253,6 +256,8 @@ class Robot : TimedRobot() {
         SmartDashboard.putBoolean("Intake Sensor", intakeSubsystem.intakeLimit.get())
         SmartDashboard.putNumber("Intake Motor Amps", intakeSubsystem.intakeMotors.outputCurrent)
         SmartDashboard.putNumber("Intake Motor Temp", intakeSubsystem.intakeMotors.motorTemperature)
+        SmartDashboard.putBoolean("StopBottomStageTwo", false)
+
     }
 
     override fun autonomousInit() {
