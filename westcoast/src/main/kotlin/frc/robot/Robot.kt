@@ -34,7 +34,9 @@ class Robot : TimedRobot() {
         Cheesy
     }
 
-    private val joystick = Joystick(0)
+    private val joystick0 = Joystick(0) //drive joystick
+    private val joystick1 = Joystick(1) //co-drive joystick
+
 
     private val gyro = Pigeon2(10, "rio")
 
@@ -61,23 +63,24 @@ class Robot : TimedRobot() {
             // power first until oscillates, I until gets there fast, then D until no oscillations
         ),
         drive = driveTrainSubsystem,
-        gyro = gyro
-    )
+        gyro = gyro,
+        { gyroCompassStartPos }
+        )
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
 
     private val limelight = LimelightRunner()
     private val cheesyDrive = CheesyDrive(
-        inputThrottle = { joystick.y },
-        inputYaw = { joystick.x },
+        inputThrottle = { joystick0.y },
+        inputYaw = { joystick0.x },
         drive = driveTrainSubsystem,
         sensitivityHigh = 0.5,
         sensitivityLow = 0.5
     )
     private val rawDrive = TeleopDrive(
-        inputThrottle = { joystick.y },
-        inputTurn = { joystick.twist },
-        inputYaw = { joystick.x },
+        inputThrottle = { joystick0.y },
+        inputTurn = { joystick0.twist },
+        inputYaw = { joystick0.x },
         drive = driveTrainSubsystem
     )
 
@@ -104,13 +107,13 @@ class Robot : TimedRobot() {
 
     private val triggers = listOf(
         //INTAKE TRIGGERS
-        Trigger { joystick.getRawButton(1)}
+        Trigger { joystick0.getRawButton(1) || joystick1.getRawButton(1)}
             .whileTrue(
                 Intake(
                     intakeSubsystem
                 )
             ),
-        Trigger { joystick.getRawButton(2) }
+        Trigger { joystick0.getRawButton(2) || joystick1.getRawButton(2)}
             .whileTrue(
                 Eject(
                     intakeSubsystem
@@ -118,23 +121,23 @@ class Robot : TimedRobot() {
             ),
 
         //Align to target
-        Trigger { joystick.getRawButton(3) }
+        Trigger { joystick0.getRawButton(3) }
             .whileTrue(
                 alignToTarget
             ),
 
-        Trigger { joystick.getRawButton(4) }
+        Trigger { joystick0.getRawButton(4) }
             .whileTrue(
                 alignToTarget
             ),
 
-        Trigger { joystick.getRawButton(5) } // change button
+        Trigger { joystick0.getRawButton(5) }
             .whileTrue(
                 alignToTarget
             ),
 
         //ZERO
-        Trigger { joystick.getRawButton(6) }
+        Trigger { joystick0.getRawButton(6) || joystick1.getRawButton(6)}
             .whileTrue(
                 ZeroElevator(
                     elevatorSubsystem
@@ -142,14 +145,22 @@ class Robot : TimedRobot() {
             ),
 
         //STAGE TWO
-        Trigger { joystick.getRawButton(7) }
+        Trigger {
+            (joystick0.getRawButton(7) || joystick1.getRawButton(7)) &&
+                elevatorSubsystem.carriageLimitTop.get() &&
+                elevatorSubsystem.wristLimitTop.get()
+        }
             .onTrue(
                 MoveStageTwo(
                     elevatorSubsystem,
                     0.0
                 ).until { elevatorSubsystem.stageLimitBottom.get() }
             ),
-        Trigger { joystick.getRawButton(8) }
+        Trigger {
+            (joystick0.getRawButton(8) || joystick1.getRawButton(8)) &&
+                elevatorSubsystem.carriageLimitBottom.get() &&
+                elevatorSubsystem.wristLimitBottom.get()
+        }
             .onTrue(
                 MoveStageTwo(
                     elevatorSubsystem,
@@ -158,14 +169,14 @@ class Robot : TimedRobot() {
             ),
 
         //MOVE WRIST
-        Trigger { joystick.getRawButton(9) }
+        Trigger { joystick0.getRawButton(9) || joystick1.getRawButton(9)}
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     WRIST_END
                 ).until { elevatorSubsystem.wristLimitBottom.get() }
             ),
-        Trigger { joystick.getRawButton(10) }
+        Trigger { joystick0.getRawButton(10) || joystick1.getRawButton(10)}
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
@@ -174,14 +185,14 @@ class Robot : TimedRobot() {
             ),
 
         //MOVE CARRIAGE
-        Trigger { joystick.getRawButton(11) }
+        Trigger { joystick0.getRawButton(11) || joystick1.getRawButton(11)}
             .onTrue(
                 MoveCarriage(
                     elevatorSubsystem,
                     0.0
                 ).until { elevatorSubsystem.carriageLimitBottom.get() }
             ),
-        Trigger { joystick.getRawButton(12) }
+        Trigger { joystick0.getRawButton(12) || joystick1.getRawButton(12)}
             .onTrue(
                 MoveCarriage(
                     elevatorSubsystem,
@@ -200,16 +211,36 @@ class Robot : TimedRobot() {
             setDefaultOption(
                 "Default/leave line (move out)",
                 LeaveLine(
-                    distance = -5.0, // 5m for comp
-                    left = PIDController(0.25, 0.0, 0.0),
-                    right = PIDController(0.25, 0.0, 0.0),
+                    distance = 50.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                    left = PIDController(0.15, 0.01, 0.0),
+                    right = PIDController(0.15, 0.01, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position }
                 )
             )
-
-            addOption("Balance", gyroBalance)
+            addOption("Leave Lines & Balance",
+                LeaveLine(
+                    distance = 55.0, //   14ft?          4.4 encoder/ ticks per foot
+                    left = PIDController(0.15, 0.01, 0.0),
+                    right = PIDController(0.15, 0.01, 0.0),
+                    drive = driveTrainSubsystem,
+                    rightEncoder = { rightEncoder.position },
+                    leftEncoder = { leftEncoder.position }
+                ) .andThen(
+                    LeaveLine(
+                        distance = -15.2, // 3.5 ft
+                        left = PIDController(0.15, 0.01, 0.0),
+                        right = PIDController(0.15, 0.01, 0.0),
+                        drive = driveTrainSubsystem,
+                        rightEncoder = { rightEncoder.position },
+                        leftEncoder = { leftEncoder.position }
+                        )
+                ) .andThen(
+                    gyroBalance
+                    )
+                )
+            addOption("Nothing el oh el :))))))", null)
             SmartDashboard.putData("Autonomous Mode", this)
         }
 
@@ -258,18 +289,20 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("Intake Motor Temp", intakeSubsystem.intakeMotors.motorTemperature)
         SmartDashboard.putBoolean("StopBottomStageTwo", false)
 
+        limelight.periodic()
     }
 
     override fun autonomousInit() {
         val autonomous = autonomousChooser.selected
+        autonomous.schedule()
 
-        val zero = ZeroElevator(elevatorSubsystem)
-        val command = if (autonomous != null) {
-            zero.andThen(autonomous)
-        } else {
-            zero
-        }
-        command.schedule()
+//        val zero = ZeroElevator(elevatorSubsystem)
+//        val command = if (autonomous != null) {
+//            zero.andThen(autonomous)
+//        } else {
+//            zero
+//        }
+//        command.schedule
     }
 
     override fun autonomousPeriodic() {
@@ -291,7 +324,6 @@ class Robot : TimedRobot() {
     }
 
     override fun teleopPeriodic() {
-        limelight.periodic()
     }
 
     override fun teleopExit() {

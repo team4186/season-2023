@@ -19,7 +19,7 @@ class MoveCarriage(
         } else if(elevator.carriageLimitTop.get() && !elevator.stageLimitBottom.get() &&  velocity > 0) {
             elevator.carriageMotor.stopMotor()
         } else {
-            elevator.setCarriageMotor(velocity)
+            elevator.setCarriageMotor(velocity.coerceIn(-0.75,0.75))
             SmartDashboard.putNumber("CarriageVelocity", velocity)
             SmartDashboard.putNumber("CarriagePosition", elevator.carriageMotor.encoder.position)
         }

@@ -13,33 +13,27 @@ class MoveStageTwo(
     { elevator.stageTwoMotor.encoder.position },
     position,
     { velocity ->
-        if(elevator.stageLimitBottom.get() && velocity < 0) {
+        if(!elevator.carriageLimitTop.get() && !elevator.wristLimitTop.get()){
             elevator.stageTwoMotor.stopMotor()
-        } else if(elevator.stageLimitTop.get() && velocity > 0) {
-            elevator.stageTwoMotor.stopMotor()
+        } else if (velocity < 0){
+            if(elevator.stageLimitBottom.get()) {
+                elevator.stageTwoMotor.stopMotor()
+            } else {
+                elevator.setStageTwo(velocity.coerceIn(-0.3, 0.3))
+            }
         } else {
-            elevator.setStageTwo(0.5)
+            if(!elevator.carriageLimitTop.get() && !elevator.wristLimitTop.get()){
+                elevator.stageTwoMotor.stopMotor()
+            } else {
+                elevator.setStageTwo(velocity.coerceIn(-0.3, 0.3))
+            }
         }
-
-//        when (true) {
-//            (velocity < -0.5 &&
-//                elevator.stageLimitTop.get()) -> elevator.stageTwoMotor.stopMotor()
-//
-//           (
-//                elevator.stageLimitBottom.get() )->{
-//                    elevator.stageTwoMotor.stopMotor()
-//                    SmartDashboard.putBoolean("StopBottomStageTwo", true)
-//                }
-//
-//            else -> {
-//                SmartDashboard.putNumber("StageTwoVel", velocity);
-//                elevator.setStageTwo(velocity/6.0)
-//            }
-//        }
-//
-
     }
 ) {
+    override fun isFinished(): Boolean {
+        return !elevator.wristLimitTop.get() || !elevator.carriageLimitTop.get()
+    }
+
     override fun end(interrupted: Boolean) {
         elevator.stopAll()
     }

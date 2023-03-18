@@ -11,7 +11,7 @@ class LimelightRunner(
     override fun periodic() {
         SmartDashboard.putBoolean("Has Target?", hasTarget)
         SmartDashboard.putNumber("X Offset", xOffset)
-        SmartDashboard.putNumber("Y Offset", yOffset)
+        //SmartDashboard.putNumber("Y Offset", yOffset)
         SmartDashboard.putNumber("% of Image", tagArea)
         SmartDashboard.putNumber("Distance", Units.metersToInches(distance))
     }

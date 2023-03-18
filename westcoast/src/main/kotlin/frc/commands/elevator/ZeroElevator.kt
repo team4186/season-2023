@@ -17,14 +17,14 @@ class ZeroElevator(
             }
 
             if (!carriageLimitBottom.get() && stageLimitBottom.get()) {
-                setCarriageMotor(-0.7) // motor speed??
+                setCarriageMotor(-0.5) // motor speed??
             } else {
             carriageMotor.stopMotor()
                 carriageMotor.encoder.position = 0.0
             }
 
             if (!wristLimitTop.get() && stageLimitBottom.get()) {
-                setWristMotor(0.7)
+                setWristMotor(0.3)
             } else {
                 wristMotor.stopMotor()
                 wristMotor.encoder.position = 0.0
