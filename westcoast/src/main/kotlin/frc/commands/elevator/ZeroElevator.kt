@@ -10,7 +10,7 @@ class ZeroElevator(
     override fun execute() {
         with(elevator) {
             if (!stageLimitBottom.get()) {
-                setStageTwo(-0.3)
+                setStageTwo(-0.4)
             } else {
                 stageTwoMotor.stopMotor()
                 stageTwoMotor.encoder.position = 0.0

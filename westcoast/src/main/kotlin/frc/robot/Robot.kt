@@ -171,9 +171,7 @@ class Robot : TimedRobot() {
             .whileTrue(
                 BrakeMotors(
                     driveTrainSubsystem
-                ).alongWith(
-                    rawDrive
-                )
+                ) // we need to fix this LMAO
             ),
 
         //Align to target
@@ -201,10 +199,10 @@ class Robot : TimedRobot() {
             ),
 
         //STAGE TWO
+
+        // DOWN
         Trigger {
-            (joystick0.getRawButton(7) || joystick1.getRawButton(7)) &&
-                    elevatorSubsystem.carriageLimitTop.get() &&
-                    elevatorSubsystem.wristLimitTop.get()
+            (joystick0.getRawButton(7) || joystick1.getRawButton(7))
         }
             .onTrue(
                 MoveStageTwo(
@@ -212,10 +210,10 @@ class Robot : TimedRobot() {
                     0.0
                 ).until { elevatorSubsystem.stageLimitBottom.get() }
             ),
+
+        // UP
         Trigger {
-            (joystick0.getRawButton(8) || joystick1.getRawButton(8)) &&
-                    elevatorSubsystem.carriageLimitBottom.get() &&
-                    elevatorSubsystem.wristLimitBottom.get()
+            (joystick0.getRawButton(8) || joystick1.getRawButton(8))
         }
             .onTrue(
                 MoveStageTwo(

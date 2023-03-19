@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 //change constant values
 const val CARRIAGE_END = 174.0 // |162 - -11| = 173
-const val STAGE_TWO_END = 80.0
+const val STAGE_TWO_END = 144.4 // mostly tuned
 const val WRIST_END = -91.7
 
 class ElevatorSubsystem(

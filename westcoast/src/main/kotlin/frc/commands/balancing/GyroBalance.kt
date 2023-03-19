@@ -19,16 +19,16 @@ class GyroBalance(
     var wait = 0
 
     override fun initialize() {
-        turn.reset()
-        forward.reset()
+//        turn.reset()
+//        forward.reset()
         drive.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
         drive.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
-        //no reset for pigeon?
     }
 
     //pid definitions are in Robot.kt
     override fun execute() {
         forwardPower = forward.calculate(gyro.pitch, desiredAngle).coerceIn(-0.2865, 0.2865)
+        //tune that!!!!!!!!!!?????????!?!??!? ^^^
         drive.arcade(
             forwardPower,
             turn.calculate(gyroCompassStartPos.asDouble, desiredAngle).coerceIn(-0.2, -0.2), // if this is going the wrong direction swap signs

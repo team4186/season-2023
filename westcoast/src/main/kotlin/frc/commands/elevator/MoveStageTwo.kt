@@ -9,34 +9,28 @@ class MoveStageTwo(
     private val elevator: ElevatorSubsystem,
     position: Double
 ) : PIDCommand(
-    PIDController(0.012, 0.0, 0.0),
+    PIDController(0.042, 0.002, 0.0),
     { elevator.stageTwoMotor.encoder.position },
     position,
     { velocity ->
         if(!elevator.carriageLimitTop.get() || !elevator.wristLimitTop.get()){
             elevator.stageTwoMotor.stopMotor()
-            SmartDashboard.putBoolean("2 STOPPING", true)
         } else if (velocity < 0) {
             if(elevator.stageLimitBottom.get()) {
                 elevator.stageTwoMotor.stopMotor()
-                SmartDashboard.putBoolean("3 STOPPING", true)
             } else {
-                SmartDashboard.putBoolean("DOWN", true)
-                elevator.setStageTwo(velocity.coerceIn(-0.3, 0.3))
+                elevator.setStageTwo(velocity.coerceIn(-0.45, 0.45))
             }
         } else {
             if(elevator.stageLimitTop.get()){
                 elevator.stageTwoMotor.stopMotor()
-                SmartDashboard.putBoolean("4 STOPPING", true)
             } else {
-                SmartDashboard.putBoolean("UP", true)
-                elevator.setStageTwo(velocity.coerceIn(-0.3, 0.3))
+                elevator.setStageTwo(velocity.coerceIn(-0.45, 0.45))
             }
         }
     }
 ) {
     override fun isFinished(): Boolean {
-        SmartDashboard.putBoolean("1 STOPPING", true)
         return !elevator.wristLimitTop.get() || !elevator.carriageLimitTop.get()
     }
 
