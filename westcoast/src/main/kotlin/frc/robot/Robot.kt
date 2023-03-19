@@ -85,7 +85,6 @@ class Robot : TimedRobot() {
         drive = driveTrainSubsystem
     )
 
-    private val offset = 0.0
     private val alignToTarget = AlignToTarget(
         forward = PIDController(
             0.05, 0.0, 0.0
@@ -101,12 +100,18 @@ class Robot : TimedRobot() {
         ),
         driveTrainSubsystem,
         limelight,
-        offset,
+        0.0,
         gyro,
         { gyroCompassStartPos }
     )
 
     private val triggers = listOf(
+        //Align to target
+        Trigger { joystick0.getRawButton(1) }
+            .whileTrue(
+                alignToTarget
+            ),
+
         //INTAKE TRIGGERS
         Trigger { joystick1.getRawButton(1)}
             .whileTrue(
@@ -120,6 +125,7 @@ class Robot : TimedRobot() {
                     intakeSubsystem
                 )
             ),
+
         //Brake Motors
         Trigger { joystick0.getRawButton(2)}
             .whileTrue(
@@ -128,21 +134,51 @@ class Robot : TimedRobot() {
                 )
             ),
 
-
         //Align to target
-        Trigger { joystick0.getRawButton(3) }
+        Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
             .whileTrue(
-                alignToTarget
+                AlignToTarget(
+                    forward = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    turn = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    strafe = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    driveTrainSubsystem,
+                    limelight,
+                    -35.0,
+                    gyro,
+                    { gyroCompassStartPos }
+                )
             ),
 
-        Trigger { joystick0.getRawButton(4) }
+        Trigger { joystick0.getRawButton(4) || joystick1.getRawButton(4) }
             .whileTrue(
-                alignToTarget
-            ),
-
-        Trigger { joystick0.getRawButton(5) }
-            .whileTrue(
-                alignToTarget
+                AlignToTarget(
+                    forward = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    turn = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    strafe = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    driveTrainSubsystem,
+                    limelight,
+                    35.0,
+                    gyro,
+                    { gyroCompassStartPos }
+                )
             ),
 
         //ZERO

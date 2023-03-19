@@ -14,7 +14,7 @@ class AlignToTarget(
     private val strafe: PIDController,
     private val drive: DriveTrainSubsystem,
     private val vision: VisionRunner,
-    private val offset: Double,
+    private var offset: Double,
     private val gyro: Pigeon2,
     private val gyroCompassStartPos: DoubleSupplier
 ) : CommandBase() {
@@ -43,6 +43,7 @@ class AlignToTarget(
 
     override fun end(interrupted: Boolean) {
         drive.stop()
+        offset = 0.0
     }
 
     override fun isFinished(): Boolean {
