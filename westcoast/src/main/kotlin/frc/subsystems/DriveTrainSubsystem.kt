@@ -71,14 +71,14 @@ fun driveSparkMaxMotors(
     invert: Boolean
 ): CANSparkMax {
     follower0.follow(lead)
+
     follower0.inverted = invert
-
-    // endregion
-
-    // region Lead
     lead.inverted = invert
 
     lead.idleMode = CANSparkMax.IdleMode.kBrake
+    follower0.idleMode = CANSparkMax.IdleMode.kBrake
+    //can change to kCoast if mikayla hates it, but makes manual balance harder
+
 
     // endregion
 

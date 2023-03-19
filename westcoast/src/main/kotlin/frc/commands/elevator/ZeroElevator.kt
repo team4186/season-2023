@@ -10,16 +10,16 @@ class ZeroElevator(
     override fun execute() {
         with(elevator) {
             if (!stageLimitBottom.get()) {
-                setStageTwo(-0.5)
+                setStageTwo(-0.3)
             } else {
                 stageTwoMotor.stopMotor()
                 stageTwoMotor.encoder.position = 0.0
             }
 
             if (!carriageLimitBottom.get() && stageLimitBottom.get()) {
-                setCarriageMotor(-0.5) // motor speed??
+                setCarriageMotor(-0.3) // motor speed??
             } else {
-            carriageMotor.stopMotor()
+                carriageMotor.stopMotor()
                 carriageMotor.encoder.position = 0.0
             }
 

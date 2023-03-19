@@ -46,6 +46,6 @@ class AlignToTarget(
     }
 
     override fun isFinished(): Boolean {
-        return wait > 10
+        return wait > 10 || !vision.hasTarget
     }
 }

@@ -212,8 +212,8 @@ class Robot : TimedRobot() {
                 "Default/leave line (move out)",
                 LeaveLine(
                     distance = 50.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
-                    left = PIDController(0.15, 0.01, 0.0),
-                    right = PIDController(0.15, 0.01, 0.0),
+                    left = PIDController(0.15, 0.0, 0.0),
+                    right = PIDController(0.15, 0.0, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position }
@@ -222,16 +222,16 @@ class Robot : TimedRobot() {
             addOption("Leave Lines & Balance",
                 LeaveLine(
                     distance = 55.0, //   14ft?          4.4 encoder/ ticks per foot
-                    left = PIDController(0.15, 0.01, 0.0),
-                    right = PIDController(0.15, 0.01, 0.0),
+                    left = PIDController(0.15, 0.0, 0.0),
+                    right = PIDController(0.15, 0.0, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position }
                 ) .andThen(
                     LeaveLine(
                         distance = -15.2, // 3.5 ft
-                        left = PIDController(0.15, 0.01, 0.0),
-                        right = PIDController(0.15, 0.01, 0.0),
+                        left = PIDController(0.15, 0.0, 0.0),
+                        right = PIDController(0.15, 0.0, 0.0),
                         drive = driveTrainSubsystem,
                         rightEncoder = { rightEncoder.position },
                         leftEncoder = { leftEncoder.position }

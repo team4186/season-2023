@@ -15,6 +15,7 @@ class GyroBalance(
     private val desiredAngle: Double = 0.0
 ) : CommandBase() {
     var forwardPower = 0.0
+    var wait = 0
 
     override fun initialize() {
         turn.reset()
@@ -31,7 +32,13 @@ class GyroBalance(
             //yaw (z axis) should align robot to straight
             false
         )
+        if (gyro.pitch < 2.5 && gyro.pitch > -2.5){
+            wait++
+        }
+    }
 
+    override fun isFinished(): Boolean {
+        return wait > 10
     }
 
     override fun end(interrupted: Boolean) {
