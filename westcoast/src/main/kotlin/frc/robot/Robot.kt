@@ -185,6 +185,11 @@ class Robot : TimedRobot() {
                 alignToRightCone
             ),
 
+        Trigger { joystick0.getRawButton(5) || joystick1.getRawButton(5)}
+            .whileTrue(
+                gyroBalance
+            ),
+
         //ZERO
         Trigger { joystick0.getRawButton(6) || joystick1.getRawButton(6) }
             .whileTrue(
@@ -253,6 +258,8 @@ class Robot : TimedRobot() {
     var gyroCompassStartPos = 0.0
     override fun robotInit() {
         driveTrainSubsystem.initialize()
+        driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
+        driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
         gyro.zeroGyroBiasNow()
         gyroCompassStartPos = gyro.absoluteCompassHeading
         limelight.setLight(true)
