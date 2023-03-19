@@ -75,18 +75,13 @@ fun driveSparkMaxMotors(
     follower0.inverted = invert
     lead.inverted = invert
 
-    lead.idleMode = CANSparkMax.IdleMode.kBrake
-    follower0.idleMode = CANSparkMax.IdleMode.kBrake
-    //can change to kCoast if mikayla hates it, but makes manual balance harder
+    lead.idleMode = CANSparkMax.IdleMode.kCoast
+    follower0.idleMode = CANSparkMax.IdleMode.kCoast
 
-
-    // endregion
-
-    // region Voltage Saturation
+    // Voltage Saturation
     // See https://docs.ctre-phoenix.com/en/stable/ch13_MC.html#voltage-compensation
     lead.enableVoltageCompensation(11.0)
     follower0.enableVoltageCompensation(11.0)
 
-    // endregion
     return lead
 }

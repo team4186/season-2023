@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.commands.Intake.Eject
 import frc.commands.Intake.Intake
 import frc.commands.balancing.GyroBalance
+import frc.commands.drive.BrakeMotors
 import frc.commands.drive.CheesyDrive
 import frc.commands.drive.LeaveLine
 import frc.commands.drive.TeleopDrive
@@ -107,18 +108,26 @@ class Robot : TimedRobot() {
 
     private val triggers = listOf(
         //INTAKE TRIGGERS
-        Trigger { joystick0.getRawButton(1) || joystick1.getRawButton(1)}
+        Trigger { joystick1.getRawButton(1)}
             .whileTrue(
                 Intake(
                     intakeSubsystem
                 )
             ),
-        Trigger { joystick0.getRawButton(2) || joystick1.getRawButton(2)}
+        Trigger { joystick1.getRawButton(2)}
             .whileTrue(
                 Eject(
                     intakeSubsystem
                 )
             ),
+        //Brake Motors
+        Trigger { joystick0.getRawButton(2)}
+            .whileTrue(
+                BrakeMotors(
+                    driveTrainSubsystem
+                )
+            ),
+
 
         //Align to target
         Trigger { joystick0.getRawButton(3) }
