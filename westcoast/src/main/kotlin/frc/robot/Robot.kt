@@ -1,6 +1,7 @@
 package frc.robot
 
 import com.ctre.phoenix.sensors.Pigeon2
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.TimedRobot
@@ -251,6 +252,7 @@ class Robot : TimedRobot() {
         driveTrainSubsystem.initialize()
         gyro.zeroGyroBiasNow()
         gyroCompassStartPos = gyro.absoluteCompassHeading
+        limelight.setLight(true)
 
         with(autonomousChooser) {
             setDefaultOption(
@@ -338,6 +340,8 @@ class Robot : TimedRobot() {
     }
 
     override fun autonomousInit() {
+        driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
+        driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
         val autonomous = autonomousChooser.selected
         autonomous.schedule()
 
@@ -359,7 +363,8 @@ class Robot : TimedRobot() {
 
     override fun teleopInit() {
         // gyro.reset();
-
+        driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
+        driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
 
         when (driveModeChooser.selected) {
             DriveMode.Cheesy -> cheesyDrive
@@ -372,6 +377,8 @@ class Robot : TimedRobot() {
     }
 
     override fun teleopExit() {
+        driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
+        driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
         CommandScheduler.getInstance().cancelAll()
     }
 
