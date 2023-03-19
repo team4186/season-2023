@@ -1,6 +1,5 @@
 package frc.commands.elevator
 
-import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj2.command.PIDCommand
 import frc.subsystems.ElevatorSubsystem

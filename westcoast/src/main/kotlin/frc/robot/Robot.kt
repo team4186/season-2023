@@ -22,7 +22,6 @@ import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
 import frc.commands.elevator.ZeroElevator
 import frc.commands.targeting.AlignToTarget
-import frc.commands.targeting.ConstantlyAlignToTarget
 import frc.subsystems.*
 import frc.vision.LimelightRunner
 
@@ -67,7 +66,7 @@ class Robot : TimedRobot() {
         drive = driveTrainSubsystem,
         gyro = gyro,
         { gyroCompassStartPos }
-        )
+    )
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
 
@@ -106,6 +105,46 @@ class Robot : TimedRobot() {
         { gyroCompassStartPos }
     )
 
+    private val alignToLeftCone = AlignToTarget(
+        forward = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        turn = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        strafe = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        driveTrainSubsystem,
+        limelight,
+        -33.0,
+        gyro,
+        { gyroCompassStartPos }
+    )
+
+    private val alignToRightCone = AlignToTarget(
+        forward = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        turn = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        strafe = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        driveTrainSubsystem,
+        limelight,
+        33.0,
+        gyro,
+        { gyroCompassStartPos }
+    )
+
     private val triggers = listOf(
         //Align to target
         Trigger { joystick0.getRawButton(1) }
@@ -114,13 +153,13 @@ class Robot : TimedRobot() {
             ),
 
         //INTAKE TRIGGERS
-        Trigger { joystick1.getRawButton(1)}
+        Trigger { joystick1.getRawButton(1) }
             .whileTrue(
                 Intake(
                     intakeSubsystem
                 )
             ),
-        Trigger { joystick1.getRawButton(2)}
+        Trigger { joystick1.getRawButton(2) }
             .whileTrue(
                 Eject(
                     intakeSubsystem
@@ -128,7 +167,7 @@ class Robot : TimedRobot() {
             ),
 
         //Brake Motors
-        Trigger { joystick0.getRawButton(2)}
+        Trigger { joystick0.getRawButton(2) }
             .whileTrue(
                 BrakeMotors(
                     driveTrainSubsystem
@@ -138,52 +177,16 @@ class Robot : TimedRobot() {
         //Align to target
         Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
             .whileTrue(
-                AlignToTarget(
-                    forward = PIDController(
-                        0.05, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    turn = PIDController(
-                        0.05, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    strafe = PIDController(
-                        0.05, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    driveTrainSubsystem,
-                    limelight,
-                    -35.0,
-                    gyro,
-                    { gyroCompassStartPos }
-                )
+                alignToLeftCone
             ),
 
         Trigger { joystick0.getRawButton(4) || joystick1.getRawButton(4) }
             .whileTrue(
-                AlignToTarget(
-                    forward = PIDController(
-                        0.05, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    turn = PIDController(
-                        0.05, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    strafe = PIDController(
-                        0.05, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    driveTrainSubsystem,
-                    limelight,
-                    35.0,
-                    gyro,
-                    { gyroCompassStartPos }
-                )
+                alignToRightCone
             ),
 
         //ZERO
-        Trigger { joystick0.getRawButton(6) || joystick1.getRawButton(6)}
+        Trigger { joystick0.getRawButton(6) || joystick1.getRawButton(6) }
             .whileTrue(
                 ZeroElevator(
                     elevatorSubsystem
@@ -193,8 +196,8 @@ class Robot : TimedRobot() {
         //STAGE TWO
         Trigger {
             (joystick0.getRawButton(7) || joystick1.getRawButton(7)) &&
-                elevatorSubsystem.carriageLimitTop.get() &&
-                elevatorSubsystem.wristLimitTop.get()
+                    elevatorSubsystem.carriageLimitTop.get() &&
+                    elevatorSubsystem.wristLimitTop.get()
         }
             .onTrue(
                 MoveStageTwo(
@@ -204,8 +207,8 @@ class Robot : TimedRobot() {
             ),
         Trigger {
             (joystick0.getRawButton(8) || joystick1.getRawButton(8)) &&
-                elevatorSubsystem.carriageLimitBottom.get() &&
-                elevatorSubsystem.wristLimitBottom.get()
+                    elevatorSubsystem.carriageLimitBottom.get() &&
+                    elevatorSubsystem.wristLimitBottom.get()
         }
             .onTrue(
                 MoveStageTwo(
@@ -215,14 +218,14 @@ class Robot : TimedRobot() {
             ),
 
         //MOVE WRIST
-        Trigger { joystick0.getRawButton(9) || joystick1.getRawButton(9)}
+        Trigger { joystick0.getRawButton(9) || joystick1.getRawButton(9) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     WRIST_END
                 ).until { elevatorSubsystem.wristLimitBottom.get() }
             ),
-        Trigger { joystick0.getRawButton(10) || joystick1.getRawButton(10)}
+        Trigger { joystick0.getRawButton(10) || joystick1.getRawButton(10) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
@@ -231,21 +234,21 @@ class Robot : TimedRobot() {
             ),
 
         //MOVE CARRIAGE
-        Trigger { joystick0.getRawButton(11) || joystick1.getRawButton(11)}
+        Trigger { joystick0.getRawButton(11) || joystick1.getRawButton(11) }
             .onTrue(
                 MoveCarriage(
                     elevatorSubsystem,
                     0.0
                 ).until { elevatorSubsystem.carriageLimitBottom.get() }
             ),
-        Trigger { joystick0.getRawButton(12) || joystick1.getRawButton(12)}
+        Trigger { joystick0.getRawButton(12) || joystick1.getRawButton(12) }
             .onTrue(
                 MoveCarriage(
                     elevatorSubsystem,
                     CARRIAGE_END
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
-        )
+    )
 
     var gyroCompassStartPos = 0.0
     override fun robotInit() {
@@ -274,7 +277,7 @@ class Robot : TimedRobot() {
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position }
-                ) .andThen(
+                ).andThen(
                     LeaveLine(
                         distance = -15.2, // 3.5 ft
                         left = PIDController(0.15, 0.0, 0.0),
@@ -282,11 +285,11 @@ class Robot : TimedRobot() {
                         drive = driveTrainSubsystem,
                         rightEncoder = { rightEncoder.position },
                         leftEncoder = { leftEncoder.position }
-                        )
-                ) .andThen(
-                    gyroBalance
                     )
+                ).andThen(
+                    gyroBalance
                 )
+            )
             addOption("Nothing el oh el :))))))", null)
             SmartDashboard.putData("Autonomous Mode", this)
         }
