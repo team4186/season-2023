@@ -8,7 +8,7 @@ class Eject(
 ) : CommandBase() {
     override fun execute() {
         with(intake) {
-            setIntakeMotors(-0.35)
+            setIntakeMotors(-0.5)
         }
     }
 

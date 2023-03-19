@@ -376,6 +376,8 @@ class Robot : TimedRobot() {
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
 
+        limelight.setLight(true)
+
         when (driveModeChooser.selected) {
             DriveMode.Cheesy -> cheesyDrive
             DriveMode.Raw -> rawDrive

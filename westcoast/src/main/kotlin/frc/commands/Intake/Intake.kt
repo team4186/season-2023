@@ -9,7 +9,7 @@ class Intake(
     override fun execute() {
         with(intake) {
             if (intakeLimit.get()) {
-                setIntakeMotors(0.35)
+                setIntakeMotors(0.6)
             }
             else
             {
