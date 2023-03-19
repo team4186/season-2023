@@ -171,6 +171,8 @@ class Robot : TimedRobot() {
             .whileTrue(
                 BrakeMotors(
                     driveTrainSubsystem
+                ).alongWith(
+                    rawDrive
                 )
             ),
 
@@ -265,7 +267,7 @@ class Robot : TimedRobot() {
         limelight.setLight(true)
 
         with(autonomousChooser) {
-            setDefaultOption(
+            addOption(
                 "Default/leave line (move out)",
                 LeaveLine(
                     distance = 50.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
@@ -297,7 +299,7 @@ class Robot : TimedRobot() {
                     gyroBalance
                 )
             )
-            addOption("Nothing el oh el :))))))", null)
+            addOption("Nothing", null)
             SmartDashboard.putData("Autonomous Mode", this)
         }
 

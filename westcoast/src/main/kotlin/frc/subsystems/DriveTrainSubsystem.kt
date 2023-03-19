@@ -27,7 +27,9 @@ class DriveTrainSubsystem(
 
     private val motorSafety: MotorSafety = object : MotorSafety() {
         override fun stopMotor() {
-            stop()
+            leftMotor.stopMotor()
+            rightMotor.stopMotor()
+            hMotor.stopMotor()
         }
 
         override fun getDescription(): String {

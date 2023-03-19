@@ -10,9 +10,7 @@ class Intake(
         with(intake) {
             if (intakeLimit.get()) {
                 setIntakeMotors(0.6)
-            }
-            else
-            {
+            } else {
                 intakeMotors.stopMotor()
             }
         }

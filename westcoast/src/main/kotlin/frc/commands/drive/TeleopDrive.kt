@@ -24,7 +24,7 @@ class TeleopDrive(
         val strafe: Double
         if (shouldAttenuate()) {
             throttle = attenuated(forward() * inputThrottle())
-            turn = attenuated(-0.75 * inputTurn())
+            turn = attenuated(-0.5 * inputTurn())
             strafe = attenuated(-inputYaw())
         } else {
             throttle = full(forward() * inputThrottle())
@@ -51,6 +51,6 @@ class TeleopDrive(
     }
 
     private fun attenuated(value: Double): Double {
-        return 0.5 * value.absoluteValue.pow(2).withSign(value)
+        return 0.75 * value.absoluteValue.pow(2).withSign(value)
     }
 }

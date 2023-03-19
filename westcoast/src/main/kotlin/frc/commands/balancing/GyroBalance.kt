@@ -1,6 +1,7 @@
 package frc.commands.balancing
 
 import com.ctre.phoenix.sensors.Pigeon2
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.subsystems.DriveTrainSubsystem
@@ -20,6 +21,8 @@ class GyroBalance(
     override fun initialize() {
         turn.reset()
         forward.reset()
+        drive.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
+        drive.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
         //no reset for pigeon?
     }
 
@@ -38,7 +41,7 @@ class GyroBalance(
     }
 
     override fun isFinished(): Boolean {
-        return wait > 10
+        return wait > 20
     }
 
     override fun end(interrupted: Boolean) {
