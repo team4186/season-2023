@@ -153,13 +153,14 @@ class Robot : TimedRobot() {
             ),
 
         //INTAKE TRIGGERS
-        Trigger { joystick1.getRawButton(1) }
+        Trigger { joystick1.getRawButton(1) || joystick0.getRawButton(2) }
             .whileTrue(
                 Intake(
                     intakeSubsystem
                 )
             ),
-        Trigger { joystick1.getRawButton(2) }
+        // EJECT
+        Trigger { joystick1.getRawButton(2) || joystick0.getRawButton(2) }
             .whileTrue(
                 Eject(
                     intakeSubsystem
@@ -259,6 +260,33 @@ class Robot : TimedRobot() {
                     CARRIAGE_END
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
+        Trigger { joystick0.getRawButton(13) || joystick1.getRawButton(13) } // assign buttons
+            .onTrue(
+                MoveWrist(
+                    elevatorSubsystem,
+                    WRIST_END
+                ).until { elevatorSubsystem.wristLimitTop.get() }
+                    .alongWith( // does that work????
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            CARRIAGE_END
+                        ).until { elevatorSubsystem.carriageLimitTop.get() }
+                    )
+            ),
+        // carriage and wrist down
+        Trigger { joystick0.getRawButton(13) || joystick1.getRawButton(13) } // assign buttons
+            .onTrue(
+                MoveWrist(
+                    elevatorSubsystem,
+                    0.0
+                ).until { elevatorSubsystem.wristLimitBottom.get() }
+                    .alongWith( // does that work????
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            0.0
+                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                    )
+            )
     )
 
     var gyroCompassStartPos = 0.0

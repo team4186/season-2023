@@ -9,7 +9,7 @@ class MoveStageTwo(
     private val elevator: ElevatorSubsystem,
     position: Double
 ) : PIDCommand(
-    PIDController(0.042, 0.002, 0.0),
+    PIDController(0.05, 0.003, 0.0),
     { elevator.stageTwoMotor.encoder.position },
     position,
     { velocity ->
@@ -19,7 +19,7 @@ class MoveStageTwo(
             if(elevator.stageLimitBottom.get()) {
                 elevator.stageTwoMotor.stopMotor()
             } else {
-                elevator.setStageTwo(velocity.coerceIn(-0.45, 0.45))
+                elevator.setStageTwo(velocity.coerceIn(-0.70, 0.8))
             }
         } else {
             if(elevator.stageLimitTop.get()){
