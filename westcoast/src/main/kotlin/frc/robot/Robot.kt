@@ -171,7 +171,7 @@ class Robot : TimedRobot() {
             .whileTrue(
                 BrakeMotors(
                     driveTrainSubsystem
-                ) // we need to fix this LMAO
+                )
             ),
 
         //Align to target
@@ -223,22 +223,27 @@ class Robot : TimedRobot() {
             ),
 
         //MOVE WRIST
+
+        // UP
         Trigger { joystick0.getRawButton(9) || joystick1.getRawButton(9) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     WRIST_END
-                ).until { elevatorSubsystem.wristLimitBottom.get() }
+                ).until { elevatorSubsystem.wristLimitBottom.get() } // should this be LimitTop ??
             ),
+        // DOWN
         Trigger { joystick0.getRawButton(10) || joystick1.getRawButton(10) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     0.0
-                ).until { elevatorSubsystem.wristLimitTop.get() }
+                ).until { elevatorSubsystem.wristLimitTop.get() } // should this be LimitBot ? or am i dumb
             ),
 
         //MOVE CARRIAGE
+
+        // DOWN
         Trigger { joystick0.getRawButton(11) || joystick1.getRawButton(11) }
             .onTrue(
                 MoveCarriage(
@@ -246,6 +251,7 @@ class Robot : TimedRobot() {
                     0.0
                 ).until { elevatorSubsystem.carriageLimitBottom.get() }
             ),
+        // UP
         Trigger { joystick0.getRawButton(12) || joystick1.getRawButton(12) }
             .onTrue(
                 MoveCarriage(
@@ -298,7 +304,65 @@ class Robot : TimedRobot() {
                 )
             )
             addOption("Nothing", null)
+
+            // implement new auton: score loaded game piece and then move out
+
+            addOption(
+                "Score loaded + leave line",
+                LeaveLine(
+                    distance = 10.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                    left = PIDController(0.15, 0.0, 0.0),
+                    right = PIDController(0.15, 0.0, 0.0),
+                    drive = driveTrainSubsystem,
+                    rightEncoder = { rightEncoder.position },
+                    leftEncoder = { leftEncoder.position }
+                ).andThen(
+                    MoveCarriage(
+                        elevatorSubsystem,
+                        CARRIAGE_END
+                    ).until { elevatorSubsystem.carriageLimitTop.get() }
+                ).andThen(
+                    MoveStageTwo(
+                        elevatorSubsystem,
+                        STAGE_TWO_END
+                    ).until { elevatorSubsystem.stageLimitTop.get() }
+                ).andThen(
+                    MoveWrist(
+                        elevatorSubsystem,
+                        WRIST_END
+                    ).until { elevatorSubsystem.wristLimitBottom.get() }
+                ).andThen(
+                    Eject(
+                        intakeSubsystem
+                    ).until { !intakeSubsystem.intakeLimit.get()} // eject till the sensor stops detecting
+                ).andThen(
+                    MoveWrist(
+                        elevatorSubsystem,
+                        0.0
+                    ).until { elevatorSubsystem.wristLimitTop.get() }
+                ).andThen(
+                    MoveStageTwo(
+                        elevatorSubsystem,
+                        0.0
+                    ).until { elevatorSubsystem.stageLimitBottom.get() }
+                ).andThen(
+                    MoveCarriage(
+                        elevatorSubsystem,
+                        0.0
+                    ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                ).andThen(
+                    LeaveLine(
+                        distance = 30.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                        left = PIDController(0.15, 0.0, 0.0),
+                        right = PIDController(0.15, 0.0, 0.0),
+                        drive = driveTrainSubsystem,
+                        rightEncoder = { rightEncoder.position },
+                        leftEncoder = { leftEncoder.position }
+                    )
+                )
+            )
             SmartDashboard.putData("Autonomous Mode", this)
+
         }
 
         with(driveModeChooser) {

@@ -32,10 +32,18 @@ class GyroBalance(
         drive.arcade(
             forwardPower,
             turn.calculate(gyroCompassStartPos.asDouble, desiredAngle).coerceIn(-0.2, -0.2), // if this is going the wrong direction swap signs
-            //yaw (z axis) should align robot to straight
+            // yaw (z axis) should align robot to straight
             false
         )
-        if (gyro.pitch < 2.5 && gyro.pitch > -2.5){
+        // evan idk how to turn but pls help implement code
+        // im trying to have it constantly reorient using yaw so it stays straight
+//        if (gyro.yaw > 3) {
+//            // turn (idk how to turn)
+//        }
+//        else if (gyro.yaw < -3) {
+//            // turn other way
+//        }
+        if (gyro.pitch < 2.5 && gyro.pitch > -2.5) {
             wait++
         }
     }

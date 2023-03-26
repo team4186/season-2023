@@ -8,9 +8,6 @@ class BrakeMotors(
     private val drive: DriveTrainSubsystem
 ) : CommandBase() {
     var wait = 0
-    init {
-        addRequirements(drive)
-    }
 
     override fun execute() {
         if (wait == 0) {
