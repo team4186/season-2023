@@ -42,9 +42,9 @@ class GyroBalance(
         }
     }
 
-    override fun isFinished(): Boolean {
-        return wait > 20
-    }
+//    override fun isFinished(): Boolean {
+//        return wait > 20
+//    }
 
     override fun end(interrupted: Boolean) {
         drive.stop()
