@@ -64,8 +64,7 @@ class Robot : TimedRobot() {
             // power first until oscillates, I until gets there fast, then D until no oscillations
         ),
         drive = driveTrainSubsystem,
-        gyro = gyro,
-        { gyroCompassStartPos }
+        gyro = gyro
     )
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
@@ -146,14 +145,14 @@ class Robot : TimedRobot() {
     )
 
     private val triggers = listOf(
-        //Align to target
-        Trigger { joystick0.getRawButton(1) }
-            .whileTrue(
-                alignToTarget
-            ),
+//        //Align to target
+//        Trigger { joystick0.getRawButton(1) }
+//            .whileTrue(
+//                alignToTarget
+//            ),
 
         //INTAKE TRIGGERS
-        Trigger { joystick1.getRawButton(1) || joystick0.getRawButton(2) }
+        Trigger { joystick1.getRawButton(1) || joystick0.getRawButton(1) }
             .whileTrue(
                 Intake(
                     intakeSubsystem
@@ -167,13 +166,13 @@ class Robot : TimedRobot() {
                 )
             ),
 
-        //Brake Motors
-        Trigger { joystick0.getRawButton(2) }
-            .whileTrue(
-                BrakeMotors(
-                    driveTrainSubsystem
-                )
-            ),
+//        //Brake Motors
+//        Trigger { joystick0.getRawButton(2) }
+//            .whileTrue(
+//                BrakeMotors(
+//                    driveTrainSubsystem
+//                )
+//            ),
 
         //Align to target
         Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
@@ -199,34 +198,32 @@ class Robot : TimedRobot() {
                 )
             ),
 
-        //STAGE TWO
-
-        // DOWN
-        Trigger {
-            (joystick0.getRawButton(7) || joystick1.getRawButton(7))
-        }
-            .onTrue(
-                MoveStageTwo(
-                    elevatorSubsystem,
-                    0.0
-                ).until { elevatorSubsystem.stageLimitBottom.get() }
-            ),
-
-        // UP
-        Trigger {
-            (joystick0.getRawButton(8) || joystick1.getRawButton(8))
-        }
-            .onTrue(
-                MoveStageTwo(
-                    elevatorSubsystem,
-                    STAGE_TWO_END
-                ).until { elevatorSubsystem.stageLimitTop.get() }
-            ),
+//        //STAGE TWO
+//        // DOWN
+//        Trigger {
+//            (joystick0.getRawButton(7) || joystick1.getRawButton(7))
+//        }
+//            .onTrue(
+//                MoveStageTwo(
+//                    elevatorSubsystem,
+//                    0.0
+//                ).until { elevatorSubsystem.stageLimitBottom.get() }
+//            ),
+//
+//        // UP
+//        Trigger {
+//            (joystick0.getRawButton(8) || joystick1.getRawButton(8))
+//        }
+//            .onTrue(
+//                MoveStageTwo(
+//                    elevatorSubsystem,
+//                    STAGE_TWO_END
+//                ).until { elevatorSubsystem.stageLimitTop.get() }
+//            ),
 
         //MOVE WRIST
-
         // UP
-        Trigger { joystick0.getRawButton(9) || joystick1.getRawButton(9) }
+        Trigger { joystick1.getRawButton(9) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
@@ -234,7 +231,7 @@ class Robot : TimedRobot() {
                 ).until { elevatorSubsystem.wristLimitBottom.get() } // should this be LimitTop ??
             ),
         // DOWN
-        Trigger { joystick0.getRawButton(10) || joystick1.getRawButton(10) }
+        Trigger { joystick1.getRawButton(10) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
@@ -243,9 +240,8 @@ class Robot : TimedRobot() {
             ),
 
         //MOVE CARRIAGE
-
         // DOWN
-        Trigger { joystick0.getRawButton(11) || joystick1.getRawButton(11) }
+        Trigger { joystick1.getRawButton(11) }
             .onTrue(
                 MoveCarriage(
                     elevatorSubsystem,
@@ -253,40 +249,74 @@ class Robot : TimedRobot() {
                 ).until { elevatorSubsystem.carriageLimitBottom.get() }
             ),
         // UP
-        Trigger { joystick0.getRawButton(12) || joystick1.getRawButton(12) }
+        Trigger { joystick1.getRawButton(12) }
             .onTrue(
                 MoveCarriage(
                     elevatorSubsystem,
                     CARRIAGE_END
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
-        Trigger { joystick0.getRawButton(13) || joystick1.getRawButton(13) } // assign buttons
-            .onTrue(
-                MoveWrist(
-                    elevatorSubsystem,
-                    WRIST_END
-                ).until { elevatorSubsystem.wristLimitTop.get() }
-                    .alongWith( // does that work????
-                        MoveCarriage(
-                            elevatorSubsystem,
-                            CARRIAGE_END
-                        ).until { elevatorSubsystem.carriageLimitTop.get() }
-                    )
-            ),
-        // carriage and wrist down
-        Trigger { joystick0.getRawButton(13) || joystick1.getRawButton(13) } // assign buttons
-            .onTrue(
-                MoveWrist(
-                    elevatorSubsystem,
-                    0.0
-                ).until { elevatorSubsystem.wristLimitBottom.get() }
-                    .alongWith( // does that work????
-                        MoveCarriage(
-                            elevatorSubsystem,
-                            0.0
-                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
-                    )
-            )
+
+//        //Experimental Triggers
+//        //stage low
+//        Trigger { joystick1.getRawButton(9) } // assign buttons
+//            .onTrue(
+//                MoveWrist(
+//                    elevatorSubsystem,
+//                    0.0
+//                ).until { elevatorSubsystem.wristLimitBottom.get() }
+//                    .alongWith( // does that work????
+//                        MoveCarriage(
+//                            elevatorSubsystem,
+//                            CARRIAGE_END
+//                        ).until { elevatorSubsystem.carriageLimitTop.get() }
+//                    )
+//            ),
+//
+//        //stage high
+//        Trigger { joystick1.getRawButton(10) } // assign buttons
+//            .onTrue(
+//                MoveWrist(
+//                    elevatorSubsystem,
+//                    WRIST_END
+//                ).until { elevatorSubsystem.wristLimitTop.get() }
+//                    .alongWith( // does that work????
+//                        MoveCarriage(
+//                            elevatorSubsystem,
+//                            CARRIAGE_END
+//                        ).until { elevatorSubsystem.carriageLimitTop.get() }
+//                    )
+//            ),
+//
+//        // stage ground
+//        Trigger { joystick1.getRawButton(11) } // assign buttons
+//            .onTrue(
+//                MoveWrist(
+//                    elevatorSubsystem,
+//                    0.0
+//                ).until { elevatorSubsystem.wristLimitBottom.get() }
+//                    .andThen( // does that work????
+//                        MoveCarriage(
+//                            elevatorSubsystem,
+//                            0.0
+//                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+//                    )
+//            ),
+//
+//      // stage mid/ramp
+//        Trigger { joystick1.getRawButton(12) } // assign buttons
+//            .onTrue(
+//                MoveWrist(
+//                    elevatorSubsystem,
+//                    WRIST_END
+//                ).until { elevatorSubsystem.wristLimitTop.get() }
+//                    .alongWith( // does that work????
+//                        MoveCarriage(
+//                            elevatorSubsystem,
+//                            0.0
+//                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+//                    )
+//            ),
     )
 
     var gyroCompassStartPos = 0.0
@@ -331,64 +361,65 @@ class Robot : TimedRobot() {
                     gyroBalance
                 )
             )
+            addOption("GyroBalance", gyroBalance)
             addOption("Nothing", null)
 
             // implement new auton: score loaded game piece and then move out
 
-            addOption(
-                "Score loaded + leave line",
-                LeaveLine(
-                    distance = 10.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
-                    left = PIDController(0.15, 0.0, 0.0),
-                    right = PIDController(0.15, 0.0, 0.0),
-                    drive = driveTrainSubsystem,
-                    rightEncoder = { rightEncoder.position },
-                    leftEncoder = { leftEncoder.position }
-                ).andThen(
-                    MoveCarriage(
-                        elevatorSubsystem,
-                        CARRIAGE_END
-                    ).until { elevatorSubsystem.carriageLimitTop.get() }
-                ).andThen(
-                    MoveStageTwo(
-                        elevatorSubsystem,
-                        STAGE_TWO_END
-                    ).until { elevatorSubsystem.stageLimitTop.get() }
-                ).andThen(
-                    MoveWrist(
-                        elevatorSubsystem,
-                        WRIST_END
-                    ).until { elevatorSubsystem.wristLimitBottom.get() }
-                ).andThen(
-                    Eject(
-                        intakeSubsystem
-                    ).until { !intakeSubsystem.intakeLimit.get()} // eject till the sensor stops detecting
-                ).andThen(
-                    MoveWrist(
-                        elevatorSubsystem,
-                        0.0
-                    ).until { elevatorSubsystem.wristLimitTop.get() }
-                ).andThen(
-                    MoveStageTwo(
-                        elevatorSubsystem,
-                        0.0
-                    ).until { elevatorSubsystem.stageLimitBottom.get() }
-                ).andThen(
-                    MoveCarriage(
-                        elevatorSubsystem,
-                        0.0
-                    ).until { elevatorSubsystem.carriageLimitBottom.get() }
-                ).andThen(
-                    LeaveLine(
-                        distance = 30.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
-                        left = PIDController(0.15, 0.0, 0.0),
-                        right = PIDController(0.15, 0.0, 0.0),
-                        drive = driveTrainSubsystem,
-                        rightEncoder = { rightEncoder.position },
-                        leftEncoder = { leftEncoder.position }
-                    )
-                )
-            )
+//            addOption(
+//                "Score loaded + leave line",
+//                LeaveLine(
+//                    distance = 10.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+//                    left = PIDController(0.15, 0.0, 0.0),
+//                    right = PIDController(0.15, 0.0, 0.0),
+//                    drive = driveTrainSubsystem,
+//                    rightEncoder = { rightEncoder.position },
+//                    leftEncoder = { leftEncoder.position }
+//                ).andThen(
+//                    MoveCarriage(
+//                        elevatorSubsystem,
+//                        CARRIAGE_END
+//                    ).until { elevatorSubsystem.carriageLimitTop.get() }
+//                ).andThen(
+//                    MoveStageTwo(
+//                        elevatorSubsystem,
+//                        STAGE_TWO_END
+//                    ).until { elevatorSubsystem.stageLimitTop.get() }
+//                ).andThen(
+//                    MoveWrist(
+//                        elevatorSubsystem,
+//                        WRIST_END
+//                    ).until { elevatorSubsystem.wristLimitBottom.get() }
+//                ).andThen(
+//                    Eject(
+//                        intakeSubsystem
+//                    ).until { !intakeSubsystem.intakeLimit.get()} // eject till the sensor stops detecting
+//                ).andThen(
+//                    MoveWrist(
+//                        elevatorSubsystem,
+//                        0.0
+//                    ).until { elevatorSubsystem.wristLimitTop.get() }
+//                ).andThen(
+//                    MoveStageTwo(
+//                        elevatorSubsystem,
+//                        0.0
+//                    ).until { elevatorSubsystem.stageLimitBottom.get() }
+//                ).andThen(
+//                    MoveCarriage(
+//                        elevatorSubsystem,
+//                        0.0
+//                    ).until { elevatorSubsystem.carriageLimitBottom.get() }
+//                ).andThen(
+//                    LeaveLine(
+//                        distance = 30.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+//                        left = PIDController(0.15, 0.0, 0.0),
+//                        right = PIDController(0.15, 0.0, 0.0),
+//                        drive = driveTrainSubsystem,
+//                        rightEncoder = { rightEncoder.position },
+//                        leftEncoder = { leftEncoder.position }
+//                    )
+//                )
+//            )
             SmartDashboard.putData("Autonomous Mode", this)
 
         }
@@ -442,6 +473,7 @@ class Robot : TimedRobot() {
     }
 
     override fun autonomousInit() {
+        gyro.yaw = 0.0
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
         val autonomous = autonomousChooser.selected
@@ -465,6 +497,7 @@ class Robot : TimedRobot() {
 
     override fun teleopInit() {
         // gyro.reset();
+        gyro.yaw = 0.0
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
 
@@ -477,7 +510,16 @@ class Robot : TimedRobot() {
         }.schedule()
     }
 
+    var end = false
     override fun teleopPeriodic() {
+        if (joystick0.getRawButton(6) || joystick1.getRawButton(6) && !end){
+            CommandScheduler.getInstance().cancelAll()
+            ZeroElevator(elevatorSubsystem).schedule()
+            rawDrive.schedule()
+            end = true
+        } else if (!joystick0.getRawButton(6) || !joystick1.getRawButton(6)) {
+            end = false
+        }
     }
 
     override fun teleopExit() {

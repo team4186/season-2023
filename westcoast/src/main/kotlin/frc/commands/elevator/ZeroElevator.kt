@@ -6,6 +6,9 @@ import frc.subsystems.ElevatorSubsystem
 class ZeroElevator(
     private val elevator: ElevatorSubsystem
 ) : CommandBase() {
+    init {
+        addRequirements(elevator)
+    }
 
     override fun execute() {
         with(elevator) {
