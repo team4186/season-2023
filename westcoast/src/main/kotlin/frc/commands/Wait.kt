@@ -1,6 +1,5 @@
 package frc.commands
 
-import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj2.command.CommandBase
 
 class Wait(
@@ -9,7 +8,7 @@ class Wait(
     var wait = 0.0
 
     override fun execute() {
-        wait = wait + 0.02
+        wait += 0.02
     }
 
     override fun isFinished(): Boolean {

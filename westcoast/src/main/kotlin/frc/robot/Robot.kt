@@ -362,6 +362,16 @@ class Robot : TimedRobot() {
             )
             addOption("Eject & Leave Line",
                 Eject(intakeSubsystem).withTimeout( 2.0 )
+                    .andThen(
+                        LeaveLine(
+                            distance = 5.2, // about 1 foot
+                            left = PIDController(0.15, 0.0, 0.0),
+                            right = PIDController(0.15, 0.0, 0.0),
+                            drive = driveTrainSubsystem,
+                            rightEncoder = { rightEncoder.position },
+                            leftEncoder = { leftEncoder.position }
+                        )
+                    )
             )
             addOption("GyroBalance", gyroBalance)
             addOption("Nothing", null)
