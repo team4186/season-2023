@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.commands.Intake.Eject
 import frc.commands.Intake.Intake
+import frc.commands.Wait
 import frc.commands.balancing.GyroBalance
 import frc.commands.drive.BrakeMotors
 import frc.commands.drive.CheesyDrive
@@ -359,6 +360,9 @@ class Robot : TimedRobot() {
                     )
                 )
             )
+            addOption("Eject & Leave Line",
+                Eject(intakeSubsystem).withTimeout( 2.0 )
+            )
             addOption("GyroBalance", gyroBalance)
             addOption("Nothing", null)
 
@@ -479,15 +483,17 @@ class Robot : TimedRobot() {
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
         val autonomous = autonomousChooser.selected
-        autonomous.schedule()
+//        autonomous.schedule()
 
-//        val zero = ZeroElevator(elevatorSubsystem)
-//        val command = if (autonomous != null) {
-//            zero.andThen(autonomous)
-//        } else {
-//            zero
-//        }
-//        command.schedule
+        val zero = ZeroElevator(elevatorSubsystem)
+        val command = if (autonomous != null) {
+            zero
+                .andThen(Wait( 1.0 ))
+                .andThen(autonomous)
+        } else {
+            zero
+        }
+        command.schedule()
     }
 
     override fun autonomousPeriodic() {
