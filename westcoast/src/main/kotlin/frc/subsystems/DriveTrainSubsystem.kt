@@ -53,7 +53,7 @@ class DriveTrainSubsystem(
 
     fun holonomic(forward: Double, turn: Double, strafe: Double, squareInputs: Boolean) {
         drive.arcadeDrive(forward, turn, squareInputs)
-        hMotor.set(strafe.coerceIn(-0.4, 0.4))
+        hMotor.set(strafe.coerceIn(-0.6, 0.6))
     }
 
     fun tank(left: Double, right: Double, squareInputs: Boolean) {

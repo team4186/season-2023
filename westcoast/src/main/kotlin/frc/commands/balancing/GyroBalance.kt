@@ -3,8 +3,10 @@ package frc.commands.balancing
 import com.ctre.phoenix.sensors.Pigeon2
 import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.wpilibj.CAN
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.subsystems.DriveTrainSubsystem
+import frc.subsystems.driveSparkMaxMotors
 import java.util.function.DoubleSupplier
 
 class GyroBalance(
@@ -16,20 +18,21 @@ class GyroBalance(
 ) : CommandBase() {
     var forwardPower = 0.0
     var turnPower = 0.0
-    var wait = 0
+    private var wait = 0
 
     override fun initialize() {
-        drive.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
-        drive.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
+        forwardPower = 0.0
+        turnPower = 0.0
+        wait = 0
     }
 
     //pid definitions are in Robot.kt
     override fun execute() {
-        forwardPower = forward.calculate(gyro.pitch, desiredAngle).coerceIn(-0.2865, 0.2865)
-        turnPower = turn.calculate(gyro.yaw, desiredAngle).coerceIn(-0.2, -0.2)
+        forwardPower = 0.35 * forward.calculate(gyro.pitch, desiredAngle)
+        turnPower = 0.35 * turn.calculate(gyro.yaw, desiredAngle)
         //tune that!!!!!!!!!!?????????!?!??!? ^^^
         drive.arcade(
-            forwardPower,
+            -forwardPower,
             turnPower,
             false
         )
@@ -45,5 +48,7 @@ class GyroBalance(
 
     override fun end(interrupted: Boolean) {
         drive.stop()
+        drive.rightMotor.idleMode = CANSparkMax.IdleMode.kBrake
+        drive.leftMotor.idleMode = CANSparkMax.IdleMode.kBrake
     }
 }

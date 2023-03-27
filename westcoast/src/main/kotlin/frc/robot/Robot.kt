@@ -357,8 +357,6 @@ class Robot : TimedRobot() {
                         rightEncoder = { rightEncoder.position },
                         leftEncoder = { leftEncoder.position }
                     )
-                ).andThen(
-                    gyroBalance
                 )
             )
             addOption("GyroBalance", gyroBalance)
@@ -433,41 +431,45 @@ class Robot : TimedRobot() {
 
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
-        SmartDashboard.putNumber("Left Encoder", leftEncoder.position)
-        SmartDashboard.putNumber("Right Encoder", rightEncoder.position)
-        SmartDashboard.putNumber("H Drive Encoder", hEncoder.position)
+//        SmartDashboard.putNumber("Left Encoder", leftEncoder.position)
+//        SmartDashboard.putNumber("Right Encoder", rightEncoder.position)
+//        SmartDashboard.putNumber("H Drive Encoder", hEncoder.position)
 
         SmartDashboard.putNumber("Yaw", gyro.yaw)
         SmartDashboard.putNumber("Pitch", gyro.pitch)
         SmartDashboard.putNumber("Roll", gyro.roll)
         SmartDashboard.putNumber("Forward Power", gyroBalance.forwardPower)
+        SmartDashboard.putNumber("Turn Power", gyroBalance.turnPower)
 
-        with(elevatorSubsystem) {
-            SmartDashboard.putNumber("Carriage encoder", carriageMotor.encoder.position)
-            SmartDashboard.putNumber("Stage Two encoder", stageTwoMotor.encoder.position)
-            SmartDashboard.putNumber("Wrist encoder", wristMotor.encoder.position)
+        SmartDashboard.putString("Left Motor Mode", driveTrainSubsystem.leftMotor.idleMode.name)
+        SmartDashboard.putString("Right Motor Mode", driveTrainSubsystem.rightMotor.idleMode.name)
 
-            SmartDashboard.putBoolean("carriageLimitTop", carriageLimitTop.get())
-            SmartDashboard.putBoolean("carriageLimitBottom", carriageLimitBottom.get())
-            SmartDashboard.putBoolean("stageLimitTop", stageLimitTop.get())
-            SmartDashboard.putBoolean("stageLimitBottom", stageLimitBottom.get())
-            SmartDashboard.putBoolean("wristLimitTop", wristLimitTop.get())
-            SmartDashboard.putBoolean("wristLimitBottom", wristLimitBottom.get())
-
-            SmartDashboard.putNumber("Carriage Motor Amps", carriageMotor.outputCurrent)
-            SmartDashboard.putNumber("Carriage Motor Temp", carriageMotor.motorTemperature)
-
-            SmartDashboard.putNumber("Wrist Motor Amps", wristMotor.outputCurrent)
-            SmartDashboard.putNumber("Wrist Motor Temp", wristMotor.motorTemperature)
-
-            SmartDashboard.putNumber("Stage Motor Amps", stageTwoMotor.outputCurrent)
-            SmartDashboard.putNumber("Stage Motor Temp", stageTwoMotor.motorTemperature)
-
-        }
-        SmartDashboard.putBoolean("Intake Sensor", intakeSubsystem.intakeLimit.get())
-        SmartDashboard.putNumber("Intake Motor Amps", intakeSubsystem.intakeMotors.outputCurrent)
-        SmartDashboard.putNumber("Intake Motor Temp", intakeSubsystem.intakeMotors.motorTemperature)
-        SmartDashboard.putBoolean("StopBottomStageTwo", false)
+//        with(elevatorSubsystem) {
+//            SmartDashboard.putNumber("Carriage encoder", carriageMotor.encoder.position)
+//            SmartDashboard.putNumber("Stage Two encoder", stageTwoMotor.encoder.position)
+//            SmartDashboard.putNumber("Wrist encoder", wristMotor.encoder.position)
+//
+//            SmartDashboard.putBoolean("carriageLimitTop", carriageLimitTop.get())
+//            SmartDashboard.putBoolean("carriageLimitBottom", carriageLimitBottom.get())
+//            SmartDashboard.putBoolean("stageLimitTop", stageLimitTop.get())
+//            SmartDashboard.putBoolean("stageLimitBottom", stageLimitBottom.get())
+//            SmartDashboard.putBoolean("wristLimitTop", wristLimitTop.get())
+//            SmartDashboard.putBoolean("wristLimitBottom", wristLimitBottom.get())
+//
+//            SmartDashboard.putNumber("Carriage Motor Amps", carriageMotor.outputCurrent)
+//            SmartDashboard.putNumber("Carriage Motor Temp", carriageMotor.motorTemperature)
+//
+//            SmartDashboard.putNumber("Wrist Motor Amps", wristMotor.outputCurrent)
+//            SmartDashboard.putNumber("Wrist Motor Temp", wristMotor.motorTemperature)
+//
+//            SmartDashboard.putNumber("Stage Motor Amps", stageTwoMotor.outputCurrent)
+//            SmartDashboard.putNumber("Stage Motor Temp", stageTwoMotor.motorTemperature)
+//
+//        }
+//        SmartDashboard.putBoolean("Intake Sensor", intakeSubsystem.intakeLimit.get())
+//        SmartDashboard.putNumber("Intake Motor Amps", intakeSubsystem.intakeMotors.outputCurrent)
+//        SmartDashboard.putNumber("Intake Motor Temp", intakeSubsystem.intakeMotors.motorTemperature)
+//        SmartDashboard.putBoolean("StopBottomStageTwo", false)
 
         limelight.periodic()
     }
