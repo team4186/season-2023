@@ -37,6 +37,21 @@ class DriveTrainSubsystem(
         }
     }
 
+    override fun periodic() {
+        if (leftMotor.outputCurrent > 20.0){
+            leftMotor.stopMotor()
+            motorSafety.feed()
+        }
+        if (rightMotor.outputCurrent > 20.0){
+            rightMotor.stopMotor()
+            motorSafety.feed()
+        }
+        if (hMotor.outputCurrent > 20.0){
+            hMotor.stopMotor()
+            motorSafety.feed()
+        }
+    }
+
     fun initialize() {
         drive.stopMotor()
         drive.isSafetyEnabled = false
@@ -53,7 +68,7 @@ class DriveTrainSubsystem(
 
     fun holonomic(forward: Double, turn: Double, strafe: Double, squareInputs: Boolean) {
         drive.arcadeDrive(forward, turn, squareInputs)
-        hMotor.set(strafe.coerceIn(-0.6, 0.6))
+        hMotor.set(0.6 * strafe)
     }
 
     fun tank(left: Double, right: Double, squareInputs: Boolean) {
