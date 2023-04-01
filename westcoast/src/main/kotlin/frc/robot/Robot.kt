@@ -148,7 +148,7 @@ class Robot : TimedRobot() {
 
     private val turnToTarget = TurnToTarget(
         turn = PIDController(
-            0.05, 0.0, 0.0
+            0.01, 0.003, 0.001
             // power first until oscillates, I until gets there fast, then D until no oscillations
         ),
         driveTrainSubsystem,
