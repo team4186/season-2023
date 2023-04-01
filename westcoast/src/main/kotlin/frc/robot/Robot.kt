@@ -23,6 +23,7 @@ import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
 import frc.commands.elevator.ZeroElevator
 import frc.commands.targeting.AlignToTarget
+import frc.commands.targeting.TurnToTarget
 import frc.subsystems.*
 import frc.vision.LimelightRunner
 
@@ -145,13 +146,16 @@ class Robot : TimedRobot() {
         { gyroCompassStartPos }
     )
 
-    private val triggers = listOf(
-//        //Align to target
-//        Trigger { joystick0.getRawButton(1) }
-//            .whileTrue(
-//                alignToTarget
-//            ),
+    private val turnToTarget = TurnToTarget(
+        turn = PIDController(
+            0.05, 0.0, 0.0
+            // power first until oscillates, I until gets there fast, then D until no oscillations
+        ),
+        driveTrainSubsystem,
+        limelight
+    )
 
+    private val triggers = listOf(
         //INTAKE TRIGGERS
         Trigger { joystick1.getRawButton(1) || joystick0.getRawButton(1) }
             .whileTrue(
@@ -166,14 +170,6 @@ class Robot : TimedRobot() {
                     intakeSubsystem
                 )
             ),
-
-//        //Brake Motors
-//        Trigger { joystick0.getRawButton(2) }
-//            .whileTrue(
-//                BrakeMotors(
-//                    driveTrainSubsystem
-//                )
-//            ),
 
         //Align to target
         Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
@@ -258,66 +254,11 @@ class Robot : TimedRobot() {
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
             ),
 
-//        //Experimental Triggers
-//        //stage low
-//        Trigger { joystick1.getRawButton(9) } // assign buttons
-//            .onTrue(
-//                MoveWrist(
-//                    elevatorSubsystem,
-//                    0.0
-//                ).until { elevatorSubsystem.wristLimitBottom.get() }
-//                    .alongWith( // does that work????
-//                        MoveCarriage(
-//                            elevatorSubsystem,
-//                            CARRIAGE_END
-//                        ).until { elevatorSubsystem.carriageLimitTop.get() }
-//                    )
-//            ),
-//
-//        //stage high
-//        Trigger { joystick1.getRawButton(10) } // assign buttons
-//            .onTrue(
-//                MoveWrist(
-//                    elevatorSubsystem,
-//                    WRIST_END
-//                ).until { elevatorSubsystem.wristLimitTop.get() }
-//                    .alongWith( // does that work????
-//                        MoveCarriage(
-//                            elevatorSubsystem,
-//                            CARRIAGE_END
-//                        ).until { elevatorSubsystem.carriageLimitTop.get() }
-//                    )
-//            ),
-//
-//        // stage ground
-//        Trigger { joystick1.getRawButton(11) } // assign buttons
-//            .onTrue(
-//                MoveWrist(
-//                    elevatorSubsystem,
-//                    0.0
-//                ).until { elevatorSubsystem.wristLimitBottom.get() }
-//                    .andThen( // does that work????
-//                        MoveCarriage(
-//                            elevatorSubsystem,
-//                            0.0
-//                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
-//                    )
-//            ),
-//
-//      // stage mid/ramp
-//        Trigger { joystick1.getRawButton(12) } // assign buttons
-//            .onTrue(
-//                MoveWrist(
-//                    elevatorSubsystem,
-//                    WRIST_END
-//                ).until { elevatorSubsystem.wristLimitTop.get() }
-//                    .alongWith( // does that work????
-//                        MoveCarriage(
-//                            elevatorSubsystem,
-//                            0.0
-//                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
-//                    )
-//            ),
+        //Align to target
+        Trigger { joystick0.getRawButton(11) }
+            .whileTrue(
+                turnToTarget
+            ),
     )
 
     var gyroCompassStartPos = 0.0
@@ -327,7 +268,7 @@ class Robot : TimedRobot() {
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
         gyro.zeroGyroBiasNow()
         gyroCompassStartPos = gyro.absoluteCompassHeading
-        limelight.setLight(true)
+        limelight.setLight(false)
 
         with(autonomousChooser) {
             addOption(
@@ -519,7 +460,7 @@ class Robot : TimedRobot() {
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
 
-        limelight.setLight(true)
+        limelight.setLight(false)
 
         when (driveModeChooser.selected) {
             DriveMode.Cheesy -> cheesyDrive

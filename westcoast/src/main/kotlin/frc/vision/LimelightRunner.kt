@@ -18,11 +18,10 @@ class LimelightRunner(
 
     override val hasTarget: Boolean
         get() {
-            val tv = if (yOffset >= 0.0) table.getEntry("tv").getDouble(0.0) else 0.0
-            return tv == 1.0
+            return table.getEntry("tv").getDouble(0.0) > 0.0
         }
 
-    override val xOffset: Double get() = if (hasTarget) table.getEntry("tx").getDouble(0.0) else 0.0
+    override val xOffset: Double get() = table.getEntry("tx").getDouble(0.0)
     override val yOffset: Double get() = table.getEntry("ty").getDouble(0.0)
     override val tagArea: Double get() = table.getEntry("ta").getDouble(0.0)
 
