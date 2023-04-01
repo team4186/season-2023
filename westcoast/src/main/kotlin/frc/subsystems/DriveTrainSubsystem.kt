@@ -38,15 +38,15 @@ class DriveTrainSubsystem(
     }
 
     override fun periodic() {
-        if (leftMotor.outputCurrent > 20.0){
+        if (leftMotor.outputCurrent > 60.0){
             leftMotor.stopMotor()
             motorSafety.feed()
         }
-        if (rightMotor.outputCurrent > 20.0){
+        if (rightMotor.outputCurrent > 60.0){
             rightMotor.stopMotor()
             motorSafety.feed()
         }
-        if (hMotor.outputCurrent > 20.0){
+        if (hMotor.outputCurrent > 60.0){
             hMotor.stopMotor()
             motorSafety.feed()
         }
