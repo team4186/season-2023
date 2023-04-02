@@ -302,10 +302,22 @@ class Robot : TimedRobot() {
                 )
             )
             addOption("Eject & Leave Line",
-                Eject(intakeSubsystem).withTimeout( 2.0 )
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                    .andThen(
+                        Eject(intakeSubsystem).withTimeout( 0.25 )
+                    )
+                    .andThen(
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            0.0
+                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                    )
                     .andThen(
                         LeaveLine(
-                            distance = 5.2, // about 1 foot
+                            distance = 25.0, // about 1 foot 5.2
                             left = PIDController(0.15, 0.0, 0.0),
                             right = PIDController(0.15, 0.0, 0.0),
                             drive = driveTrainSubsystem,
@@ -313,6 +325,9 @@ class Robot : TimedRobot() {
                             leftEncoder = { leftEncoder.position }
                         )
                     )
+//                    .andThen(
+//                        gyroBalance
+//                    )
             )
             addOption("GyroBalance", gyroBalance)
             addOption("Nothing", null)
