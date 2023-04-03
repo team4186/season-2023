@@ -26,6 +26,7 @@ import frc.commands.targeting.AlignToTarget
 import frc.commands.targeting.TurnToTarget
 import frc.subsystems.*
 import frc.vision.LimelightRunner
+import kotlin.math.roundToInt
 
 //const val MAX_SPEED_ENCODER = 2000
 //joystick * ^^ = input to pids
@@ -54,7 +55,7 @@ class Robot : TimedRobot() {
 
     private val gyroBalance = GyroBalance(
         forward = PIDController(
-            0.05, 0.0015, 0.002
+            0.05, 0.0015, 0.002   // i: .002 and d: .005 mightve worked
             // main PID for balance that needs to be adjusted
             // power first until oscillates, I until gets there fast, then D until no oscillations
         ).apply {
@@ -157,19 +158,26 @@ class Robot : TimedRobot() {
 
     private val triggers = listOf(
         //INTAKE TRIGGERS
-        Trigger { joystick1.getRawButton(1) || joystick0.getRawButton(1) }
+        Trigger { joystick1.getRawButton(1) }
             .whileTrue(
                 Intake(
                     intakeSubsystem
                 )
             ),
         // EJECT
-        Trigger { joystick1.getRawButton(2) || joystick0.getRawButton(2) }
+        Trigger { joystick1.getRawButton(2) }
             .whileTrue(
                 Eject(
                     intakeSubsystem
                 )
             ),
+        Trigger { joystick0.getRawButton(2) }
+            .whileTrue(
+                BrakeMotors(
+                    driveTrainSubsystem
+                )
+            ),
+
 
         //Align to target
         Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
@@ -266,6 +274,10 @@ class Robot : TimedRobot() {
         driveTrainSubsystem.initialize()
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
         driveTrainSubsystem.rightMotor.idleMode = CANSparkMax.IdleMode.kCoast
+        driveTrainSubsystem.leftMotor.encoder.position = 0.0
+        driveTrainSubsystem.rightMotor.encoder.position = 0.0
+        driveTrainSubsystem.hMotor.encoder.position = 0.0
+
         gyro.zeroGyroBiasNow()
         gyroCompassStartPos = gyro.absoluteCompassHeading
         limelight.setLight(false)
@@ -275,29 +287,32 @@ class Robot : TimedRobot() {
                 "Default/leave line (move out)",
                 LeaveLine(
                     distance = 50.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
-                    left = PIDController(0.15, 0.0, 0.0),
-                    right = PIDController(0.15, 0.0, 0.0),
+                    forward = PIDController(0.15, 0.0, 0.0),
+                    turn = PIDController(0.15, 0.0, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
-                    leftEncoder = { leftEncoder.position }
+                    leftEncoder = { leftEncoder.position },
+                    gyro = gyro
                 )
             )
             addOption("Leave Lines & Balance",
                 LeaveLine(
                     distance = 55.0, //   14ft?          4.4 encoder/ ticks per foot
-                    left = PIDController(0.15, 0.0, 0.0),
-                    right = PIDController(0.15, 0.0, 0.0),
+                    forward = PIDController(0.15, 0.0, 0.0),
+                    turn = PIDController(0.15, 0.0, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
-                    leftEncoder = { leftEncoder.position }
+                    leftEncoder = { leftEncoder.position },
+                    gyro = gyro
                 ).andThen(
                     LeaveLine(
                         distance = -15.2, // 3.5 ft
-                        left = PIDController(0.15, 0.0, 0.0),
-                        right = PIDController(0.15, 0.0, 0.0),
+                        forward = PIDController(0.15, 0.0, 0.0),
+                        turn = PIDController(0.15, 0.0, 0.0),
                         drive = driveTrainSubsystem,
                         rightEncoder = { rightEncoder.position },
-                        leftEncoder = { leftEncoder.position }
+                        leftEncoder = { leftEncoder.position },
+                        gyro = gyro
                     )
                 )
             )
@@ -317,79 +332,23 @@ class Robot : TimedRobot() {
                     )
                     .andThen(
                         LeaveLine(
-                            distance = 25.0, // about 1 foot 5.2
-                            left = PIDController(0.15, 0.0, 0.0),
-                            right = PIDController(0.15, 0.0, 0.0),
+                            distance = 60.0, // about 1 foot 5.2
+                            forward = PIDController(0.2, 0.0015, 0.002),
+                            turn = PIDController(0.2, 0.0015, 0.002),
                             drive = driveTrainSubsystem,
                             rightEncoder = { rightEncoder.position },
-                            leftEncoder = { leftEncoder.position }
-                        )
+                            leftEncoder = { leftEncoder.position },
+                            gyro = gyro
+                        ).withTimeout(2.0)
                     )
-//                    .andThen(
-//                        gyroBalance
-//                    )
+                    .andThen(
+                        gyroBalance
+                    )
             )
-            addOption("GyroBalance", gyroBalance)
+            //addOption("GyroBalance", gyroBalance)
             addOption("Nothing", null)
 
-            // implement new auton: score loaded game piece and then move out
-
-//            addOption(
-//                "Score loaded + leave line",
-//                LeaveLine(
-//                    distance = 10.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
-//                    left = PIDController(0.15, 0.0, 0.0),
-//                    right = PIDController(0.15, 0.0, 0.0),
-//                    drive = driveTrainSubsystem,
-//                    rightEncoder = { rightEncoder.position },
-//                    leftEncoder = { leftEncoder.position }
-//                ).andThen(
-//                    MoveCarriage(
-//                        elevatorSubsystem,
-//                        CARRIAGE_END
-//                    ).until { elevatorSubsystem.carriageLimitTop.get() }
-//                ).andThen(
-//                    MoveStageTwo(
-//                        elevatorSubsystem,
-//                        STAGE_TWO_END
-//                    ).until { elevatorSubsystem.stageLimitTop.get() }
-//                ).andThen(
-//                    MoveWrist(
-//                        elevatorSubsystem,
-//                        WRIST_END
-//                    ).until { elevatorSubsystem.wristLimitBottom.get() }
-//                ).andThen(
-//                    Eject(
-//                        intakeSubsystem
-//                    ).until { !intakeSubsystem.intakeLimit.get()} // eject till the sensor stops detecting
-//                ).andThen(
-//                    MoveWrist(
-//                        elevatorSubsystem,
-//                        0.0
-//                    ).until { elevatorSubsystem.wristLimitTop.get() }
-//                ).andThen(
-//                    MoveStageTwo(
-//                        elevatorSubsystem,
-//                        0.0
-//                    ).until { elevatorSubsystem.stageLimitBottom.get() }
-//                ).andThen(
-//                    MoveCarriage(
-//                        elevatorSubsystem,
-//                        0.0
-//                    ).until { elevatorSubsystem.carriageLimitBottom.get() }
-//                ).andThen(
-//                    LeaveLine(
-//                        distance = 30.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
-//                        left = PIDController(0.15, 0.0, 0.0),
-//                        right = PIDController(0.15, 0.0, 0.0),
-//                        drive = driveTrainSubsystem,
-//                        rightEncoder = { rightEncoder.position },
-//                        leftEncoder = { leftEncoder.position }
-//                    )
-//                )
-//            )
             SmartDashboard.putData("Autonomous Mode", this)
-
         }
 
         with(driveModeChooser) {
@@ -401,30 +360,30 @@ class Robot : TimedRobot() {
 
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
-//        SmartDashboard.putNumber("Left Encoder", leftEncoder.position)
-//        SmartDashboard.putNumber("Right Encoder", rightEncoder.position)
-//        SmartDashboard.putNumber("H Drive Encoder", hEncoder.position)
+        SmartDashboard.putNumber("Left Encoder", leftEncoder.position)
+        SmartDashboard.putNumber("Right Encoder", rightEncoder.position)
+        SmartDashboard.putNumber("H Drive Encoder", hEncoder.position)
 
         SmartDashboard.putNumber("Yaw", gyro.yaw)
         SmartDashboard.putNumber("Pitch", gyro.pitch)
         SmartDashboard.putNumber("Roll", gyro.roll)
-        SmartDashboard.putNumber("Forward Power", gyroBalance.forwardPower)
-        SmartDashboard.putNumber("Turn Power", gyroBalance.turnPower)
+        SmartDashboard.putNumber("Gyrobalance fwd", gyroBalance.forwardPower)
+        SmartDashboard.putNumber("GyroBalance trn", gyroBalance.turnPower)
 
-        SmartDashboard.putString("Left Motor Mode", driveTrainSubsystem.leftMotor.idleMode.name)
-        SmartDashboard.putString("Right Motor Mode", driveTrainSubsystem.rightMotor.idleMode.name)
+//        SmartDashboard.putString("Left Motor Mode", driveTrainSubsystem.leftMotor.idleMode.name)
+//        SmartDashboard.putString("Right Motor Mode", driveTrainSubsystem.rightMotor.idleMode.name)
 
-//        with(elevatorSubsystem) {
+        with(elevatorSubsystem) {
 //            SmartDashboard.putNumber("Carriage encoder", carriageMotor.encoder.position)
 //            SmartDashboard.putNumber("Stage Two encoder", stageTwoMotor.encoder.position)
 //            SmartDashboard.putNumber("Wrist encoder", wristMotor.encoder.position)
 //
-//            SmartDashboard.putBoolean("carriageLimitTop", carriageLimitTop.get())
-//            SmartDashboard.putBoolean("carriageLimitBottom", carriageLimitBottom.get())
-//            SmartDashboard.putBoolean("stageLimitTop", stageLimitTop.get())
-//            SmartDashboard.putBoolean("stageLimitBottom", stageLimitBottom.get())
-//            SmartDashboard.putBoolean("wristLimitTop", wristLimitTop.get())
-//            SmartDashboard.putBoolean("wristLimitBottom", wristLimitBottom.get())
+            SmartDashboard.putBoolean("carriageLimitTop", carriageLimitTop.get())
+            SmartDashboard.putBoolean("carriageLimitBottom", carriageLimitBottom.get())
+            SmartDashboard.putBoolean("stageLimitTop", stageLimitTop.get())
+            SmartDashboard.putBoolean("stageLimitBottom", stageLimitBottom.get())
+            SmartDashboard.putBoolean("wristLimitTop", wristLimitTop.get())
+            SmartDashboard.putBoolean("wristLimitBottom", wristLimitBottom.get())
 //
 //            SmartDashboard.putNumber("Carriage Motor Amps", carriageMotor.outputCurrent)
 //            SmartDashboard.putNumber("Carriage Motor Temp", carriageMotor.motorTemperature)
@@ -435,7 +394,7 @@ class Robot : TimedRobot() {
 //            SmartDashboard.putNumber("Stage Motor Amps", stageTwoMotor.outputCurrent)
 //            SmartDashboard.putNumber("Stage Motor Temp", stageTwoMotor.motorTemperature)
 //
-//        }
+        }
 //        SmartDashboard.putBoolean("Intake Sensor", intakeSubsystem.intakeLimit.get())
 //        SmartDashboard.putNumber("Intake Motor Amps", intakeSubsystem.intakeMotors.outputCurrent)
 //        SmartDashboard.putNumber("Intake Motor Temp", intakeSubsystem.intakeMotors.motorTemperature)
@@ -454,7 +413,7 @@ class Robot : TimedRobot() {
         val zero = ZeroElevator(elevatorSubsystem)
         val command = if (autonomous != null) {
             zero
-                .andThen(Wait( 1.0 ))
+//                .andThen(Wait( 1.0 ))
                 .andThen(autonomous)
         } else {
             zero
