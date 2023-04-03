@@ -12,21 +12,18 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.commands.Intake.Eject
 import frc.commands.Intake.Intake
-import frc.commands.Wait
 import frc.commands.balancing.GyroBalance
 import frc.commands.drive.BrakeMotors
 import frc.commands.drive.CheesyDrive
 import frc.commands.drive.LeaveLine
 import frc.commands.drive.TeleopDrive
 import frc.commands.elevator.MoveCarriage
-import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
 import frc.commands.elevator.ZeroElevator
 import frc.commands.targeting.AlignToTarget
 import frc.commands.targeting.TurnToTarget
 import frc.subsystems.*
 import frc.vision.LimelightRunner
-import kotlin.math.roundToInt
 
 //const val MAX_SPEED_ENCODER = 2000
 //joystick * ^^ = input to pids
@@ -190,7 +187,7 @@ class Robot : TimedRobot() {
                 alignToRightCone
             ),
 
-        Trigger { joystick0.getRawButton(5) || joystick1.getRawButton(5)}
+        Trigger { joystick0.getRawButton(5) || joystick1.getRawButton(5) }
             .whileTrue(
                 gyroBalance
             ),
@@ -283,8 +280,26 @@ class Robot : TimedRobot() {
         limelight.setLight(false)
 
         with(autonomousChooser) {
+            addOption("Nothing", null)
+
+            addOption("Score Cube High",
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                    .andThen(
+                        Eject(intakeSubsystem).withTimeout(0.25)
+                    )
+                    .andThen(
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            0.0
+                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                    )
+            )
+
             addOption(
-                "Default/leave line (move out)",
+                "Move Out",
                 LeaveLine(
                     distance = 50.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
                     forward = PIDController(0.15, 0.0, 0.0),
@@ -293,36 +308,44 @@ class Robot : TimedRobot() {
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position },
                     gyro = gyro
-                )
+                ).withTimeout(2.0)
             )
-            addOption("Leave Lines & Balance",
-                LeaveLine(
-                    distance = 55.0, //   14ft?          4.4 encoder/ ticks per foot
-                    forward = PIDController(0.15, 0.0, 0.0),
-                    turn = PIDController(0.15, 0.0, 0.0),
-                    drive = driveTrainSubsystem,
-                    rightEncoder = { rightEncoder.position },
-                    leftEncoder = { leftEncoder.position },
-                    gyro = gyro
-                ).andThen(
-                    LeaveLine(
-                        distance = -15.2, // 3.5 ft
-                        forward = PIDController(0.15, 0.0, 0.0),
-                        turn = PIDController(0.15, 0.0, 0.0),
-                        drive = driveTrainSubsystem,
-                        rightEncoder = { rightEncoder.position },
-                        leftEncoder = { leftEncoder.position },
-                        gyro = gyro
-                    )
-                )
-            )
-            addOption("Eject & Leave Line",
+
+            addOption("Eject & Move & Balance",
                 MoveCarriage(
                     elevatorSubsystem,
                     CARRIAGE_END
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
                     .andThen(
-                        Eject(intakeSubsystem).withTimeout( 0.25 )
+                        Eject(intakeSubsystem).withTimeout(0.25)
+                    ).andThen(
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            0.0
+                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                    ).andThen(
+                        LeaveLine(
+                            distance = 60.0, //gets onto the platform
+                            forward = PIDController(0.2, 0.0015, 0.002),
+                            turn = PIDController(0.2, 0.0015, 0.002),
+                            drive = driveTrainSubsystem,
+                            rightEncoder = { rightEncoder.position },
+                            leftEncoder = { leftEncoder.position },
+                            gyro = gyro
+                        ).withTimeout(2.0)
+                    ).andThen(
+                        gyroBalance
+                    )
+            )
+
+            addOption(
+                "Eject, Leave Lines & Balance",
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                    .andThen(
+                        Eject(intakeSubsystem).withTimeout(0.25)
                     )
                     .andThen(
                         MoveCarriage(
@@ -332,22 +355,39 @@ class Robot : TimedRobot() {
                     )
                     .andThen(
                         LeaveLine(
-                            distance = 60.0, // about 1 foot 5.2
-                            forward = PIDController(0.2, 0.0015, 0.002),
-                            turn = PIDController(0.2, 0.0015, 0.002),
+                            distance = 70.0,
+                            forward = PIDController(0.15, 0.0, 0.0),
+                            turn = PIDController(0.15, 0.0, 0.0),
                             drive = driveTrainSubsystem,
                             rightEncoder = { rightEncoder.position },
                             leftEncoder = { leftEncoder.position },
                             gyro = gyro
                         ).withTimeout(2.0)
-                    )
-                    .andThen(
-                        gyroBalance
+                            .andThen(
+                                LeaveLine(
+                                    distance = 25.0,
+                                    forward = PIDController(0.15, 0.0, 0.0),
+                                    turn = PIDController(0.15, 0.0, 0.0),
+                                    drive = driveTrainSubsystem,
+                                    rightEncoder = { rightEncoder.position },
+                                    leftEncoder = { leftEncoder.position },
+                                    gyro = gyro
+                                ).withTimeout(2.0)
+                            ).andThen(
+                                LeaveLine(
+                                    distance = -35.0,
+                                    forward = PIDController(0.15, 0.0, 0.0),
+                                    turn = PIDController(0.15, 0.0, 0.0),
+                                    drive = driveTrainSubsystem,
+                                    rightEncoder = { rightEncoder.position },
+                                    leftEncoder = { leftEncoder.position },
+                                    gyro = gyro
+                                ).withTimeout(2.0)
+                            ).andThen(
+                                gyroBalance
+                            )
                     )
             )
-            //addOption("GyroBalance", gyroBalance)
-            addOption("Nothing", null)
-
             SmartDashboard.putData("Autonomous Mode", this)
         }
 
@@ -445,7 +485,7 @@ class Robot : TimedRobot() {
 
     var end = false
     override fun teleopPeriodic() {
-        if (joystick0.getRawButton(6) || joystick1.getRawButton(6) && !end){
+        if (joystick0.getRawButton(6) || joystick1.getRawButton(6) && !end) {
             CommandScheduler.getInstance().cancelAll()
             ZeroElevator(elevatorSubsystem).schedule()
             rawDrive.schedule()

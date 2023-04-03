@@ -3,12 +3,8 @@ package frc.commands.balancing
 import com.ctre.phoenix.sensors.Pigeon2
 import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.wpilibj.CAN
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.subsystems.DriveTrainSubsystem
-import frc.subsystems.driveSparkMaxMotors
-import java.util.function.DoubleSupplier
 import kotlin.math.roundToInt
 
 class GyroBalance(
@@ -27,11 +23,11 @@ class GyroBalance(
 
     //pid definitions are in Robot.kt
     override fun execute() {
-        forwardPower = 0.35 * forward.calculate(gyro.pitch, desiredAngle) // 0.35
+        forwardPower = -0.35 * forward.calculate(gyro.pitch, desiredAngle) // 0.35
         turnPower = turn.calculate(gyro.yaw - ((gyro.yaw / 180).roundToInt() * 180), desiredAngle).coerceIn(-0.1, 0.1)
         //tune that!!!!!!!!!!?????????!?!??!? ^^^
         drive.holonomic(
-            -forwardPower,
+            forwardPower,
             turnPower,
             0.0,
             false
