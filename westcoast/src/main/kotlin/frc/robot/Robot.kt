@@ -50,22 +50,6 @@ class Robot : TimedRobot() {
     private val elevatorSubsystem = ElevatorSubsystem()
     private val intakeSubsystem = IntakeSubsystem()
 
-    private val gyroBalance = GyroBalance(
-        forward = PIDController(
-            0.05, 0.0015, 0.002   // i: .002 and d: .005 mightve worked
-            // main PID for balance that needs to be adjusted
-            // power first until oscillates, I until gets there fast, then D until no oscillations
-        ).apply {
-            enableContinuousInput(-180.0, 180.0)
-            setTolerance(1.5)
-        },
-        turn = PIDController(
-            0.05, 0.0, 0.0
-            // power first until oscillates, I until gets there fast, then D until no oscillations
-        ),
-        drive = driveTrainSubsystem,
-        gyro = gyro
-    )
     private val autonomousChooser = SendableChooser<Command>()
     private val driveModeChooser = SendableChooser<DriveMode>()
 
@@ -189,7 +173,22 @@ class Robot : TimedRobot() {
 
         Trigger { joystick0.getRawButton(5) || joystick1.getRawButton(5) }
             .whileTrue(
-                gyroBalance
+                GyroBalance(
+                    forward = PIDController(
+                        0.05, 0.0015, 0.002   // i: .002 and d: .005 mightve worked
+                        // main PID for balance that needs to be adjusted
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ).apply {
+                        enableContinuousInput(-180.0, 180.0)
+                        setTolerance(1.5)
+                    },
+                    turn = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    drive = driveTrainSubsystem,
+                    gyro = gyro
+                )
             ),
 
         //ZERO
@@ -360,7 +359,22 @@ class Robot : TimedRobot() {
                             gyro = gyro
                         ).withTimeout(2.0)
                     ).andThen(
-                        gyroBalance
+                        GyroBalance(
+                            forward = PIDController(
+                                0.05, 0.0015, 0.002   // i: .002 and d: .005 mightve worked
+                                // main PID for balance that needs to be adjusted
+                                // power first until oscillates, I until gets there fast, then D until no oscillations
+                            ).apply {
+                                enableContinuousInput(-180.0, 180.0)
+                                setTolerance(1.5)
+                            },
+                            turn = PIDController(
+                                0.05, 0.0, 0.0
+                                // power first until oscillates, I until gets there fast, then D until no oscillations
+                            ),
+                            drive = driveTrainSubsystem,
+                            gyro = gyro
+                        )
                     )
             )
 
@@ -433,8 +447,6 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("Yaw", gyro.yaw)
         SmartDashboard.putNumber("Pitch", gyro.pitch)
         SmartDashboard.putNumber("Roll", gyro.roll)
-        SmartDashboard.putNumber("Gyrobalance fwd", gyroBalance.forwardPower)
-        SmartDashboard.putNumber("GyroBalance trn", gyroBalance.turnPower)
 
 //        SmartDashboard.putString("Left Motor Mode", driveTrainSubsystem.leftMotor.idleMode.name)
 //        SmartDashboard.putString("Right Motor Mode", driveTrainSubsystem.rightMotor.idleMode.name)
