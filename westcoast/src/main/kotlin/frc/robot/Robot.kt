@@ -301,7 +301,7 @@ class Robot : TimedRobot() {
             addOption(
                 "Move Out",
                 LeaveLine(
-                    distance = 50.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                    distance = 60.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
                     forward = PIDController(0.15, 0.0, 0.0),
                     turn = PIDController(0.15, 0.0, 0.0),
                     drive = driveTrainSubsystem,
@@ -309,6 +309,32 @@ class Robot : TimedRobot() {
                     leftEncoder = { leftEncoder.position },
                     gyro = gyro
                 ).withTimeout(2.0)
+            )
+
+            addOption(
+                "Eject & Move",
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                    .andThen(
+                        Eject(intakeSubsystem).withTimeout(0.25)
+                    ).andThen(
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            0.0
+                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                    ).andThen(
+                        LeaveLine(
+                            distance = 60.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                            forward = PIDController(0.15, 0.0, 0.0),
+                            turn = PIDController(0.15, 0.0, 0.0),
+                            drive = driveTrainSubsystem,
+                            rightEncoder = { rightEncoder.position },
+                            leftEncoder = { leftEncoder.position },
+                            gyro = gyro
+                        ).withTimeout(2.0)
+                    )
             )
 
             addOption("Eject & Move & Balance",
@@ -338,56 +364,56 @@ class Robot : TimedRobot() {
                     )
             )
 
-            addOption(
-                "Eject, Leave Lines & Balance",
-                MoveCarriage(
-                    elevatorSubsystem,
-                    CARRIAGE_END
-                ).until { elevatorSubsystem.carriageLimitTop.get() }
-                    .andThen(
-                        Eject(intakeSubsystem).withTimeout(0.25)
-                    )
-                    .andThen(
-                        MoveCarriage(
-                            elevatorSubsystem,
-                            0.0
-                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
-                    )
-                    .andThen(
-                        LeaveLine(
-                            distance = 70.0,
-                            forward = PIDController(0.15, 0.0, 0.0),
-                            turn = PIDController(0.15, 0.0, 0.0),
-                            drive = driveTrainSubsystem,
-                            rightEncoder = { rightEncoder.position },
-                            leftEncoder = { leftEncoder.position },
-                            gyro = gyro
-                        ).withTimeout(2.0)
-                            .andThen(
-                                LeaveLine(
-                                    distance = 25.0,
-                                    forward = PIDController(0.15, 0.0, 0.0),
-                                    turn = PIDController(0.15, 0.0, 0.0),
-                                    drive = driveTrainSubsystem,
-                                    rightEncoder = { rightEncoder.position },
-                                    leftEncoder = { leftEncoder.position },
-                                    gyro = gyro
-                                ).withTimeout(2.0)
-                            ).andThen(
-                                LeaveLine(
-                                    distance = -35.0,
-                                    forward = PIDController(0.15, 0.0, 0.0),
-                                    turn = PIDController(0.15, 0.0, 0.0),
-                                    drive = driveTrainSubsystem,
-                                    rightEncoder = { rightEncoder.position },
-                                    leftEncoder = { leftEncoder.position },
-                                    gyro = gyro
-                                ).withTimeout(2.0)
-                            ).andThen(
-                                gyroBalance
-                            )
-                    )
-            )
+//            addOption(
+//                "Eject, Leave Lines & Balance",
+//                MoveCarriage(
+//                    elevatorSubsystem,
+//                    CARRIAGE_END
+//                ).until { elevatorSubsystem.carriageLimitTop.get() }
+//                    .andThen(
+//                        Eject(intakeSubsystem).withTimeout(0.25)
+//                    )
+//                    .andThen(
+//                        MoveCarriage(
+//                            elevatorSubsystem,
+//                            0.0
+//                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+//                    )
+//                    .andThen(
+//                        LeaveLine(
+//                            distance = 70.0,
+//                            forward = PIDController(0.15, 0.0, 0.0),
+//                            turn = PIDController(0.15, 0.0, 0.0),
+//                            drive = driveTrainSubsystem,
+//                            rightEncoder = { rightEncoder.position },
+//                            leftEncoder = { leftEncoder.position },
+//                            gyro = gyro
+//                        ).withTimeout(2.0)
+//                            .andThen(
+//                                LeaveLine(
+//                                    distance = 25.0,
+//                                    forward = PIDController(0.15, 0.0, 0.0),
+//                                    turn = PIDController(0.15, 0.0, 0.0),
+//                                    drive = driveTrainSubsystem,
+//                                    rightEncoder = { rightEncoder.position },
+//                                    leftEncoder = { leftEncoder.position },
+//                                    gyro = gyro
+//                                ).withTimeout(2.0)
+//                            ).andThen(
+//                                LeaveLine(
+//                                    distance = -35.0,
+//                                    forward = PIDController(0.15, 0.0, 0.0),
+//                                    turn = PIDController(0.15, 0.0, 0.0),
+//                                    drive = driveTrainSubsystem,
+//                                    rightEncoder = { rightEncoder.position },
+//                                    leftEncoder = { leftEncoder.position },
+//                                    gyro = gyro
+//                                ).withTimeout(2.0)
+//                            ).andThen(
+//                                gyroBalance
+//                            )
+//                    )
+//            )
             SmartDashboard.putData("Autonomous Mode", this)
         }
 
