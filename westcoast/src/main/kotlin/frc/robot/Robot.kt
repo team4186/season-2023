@@ -301,7 +301,7 @@ class Robot : TimedRobot() {
             addOption(
                 "Move Out",
                 LeaveLine(
-                    distance = 60.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                    distance = 80.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
                     forward = PIDController(0.15, 0.0, 0.0),
                     turn = PIDController(0.15, 0.0, 0.0),
                     drive = driveTrainSubsystem,
@@ -326,14 +326,14 @@ class Robot : TimedRobot() {
                         ).until { elevatorSubsystem.carriageLimitBottom.get() }
                     ).andThen(
                         LeaveLine(
-                            distance = 60.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                            distance = 80.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
                             forward = PIDController(0.15, 0.0, 0.0),
                             turn = PIDController(0.15, 0.0, 0.0),
                             drive = driveTrainSubsystem,
                             rightEncoder = { rightEncoder.position },
                             leftEncoder = { leftEncoder.position },
                             gyro = gyro
-                        ).withTimeout(2.0)
+                        ).withTimeout(4.0)
                     )
             )
 
@@ -402,15 +402,10 @@ class Robot : TimedRobot() {
                             rightEncoder = { rightEncoder.position },
                             leftEncoder = { leftEncoder.position },
                             gyro = gyro
-                        ).withTimeout(2.0)
-                            .alongWith(
-                                BrakeMotors(
-                                    driveTrainSubsystem
-                                )
-                            )
+                        ).withTimeout(3.0)
                             ).andThen(
                                 LeaveLine(
-                                    distance = -40.0,
+                                    distance = (-40.0),
                                     forward = PIDController(0.15, 0.0, 0.0),
                                     turn = PIDController(0.15, 0.0, 0.0),
                                     drive = driveTrainSubsystem,
