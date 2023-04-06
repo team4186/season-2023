@@ -18,6 +18,7 @@ import frc.commands.drive.CheesyDrive
 import frc.commands.drive.LeaveLine
 import frc.commands.drive.TeleopDrive
 import frc.commands.elevator.MoveCarriage
+import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
 import frc.commands.elevator.ZeroElevator
 import frc.commands.targeting.AlignToTarget
@@ -152,13 +153,13 @@ class Robot : TimedRobot() {
                     intakeSubsystem
                 )
             ),
+        // BRAKE
         Trigger { joystick0.getRawButton(2) }
             .whileTrue(
                 BrakeMotors(
                     driveTrainSubsystem
                 )
             ),
-
 
         //Align to target
         Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
@@ -175,7 +176,7 @@ class Robot : TimedRobot() {
             .whileTrue(
                 GyroBalance(
                     forward = PIDController(
-                        0.05, 0.0015, 0.002   // i: .002 and d: .005 mightve worked
+                        0.05, 0.001, 0.002   // 0.05, 0.001, 0.002
                         // main PID for balance that needs to be adjusted
                         // power first until oscillates, I until gets there fast, then D until no oscillations
                     ).apply {
@@ -202,7 +203,7 @@ class Robot : TimedRobot() {
 //        //STAGE TWO
 //        // DOWN
 //        Trigger {
-//            (joystick0.getRawButton(7) || joystick1.getRawButton(7))
+//            (joystick1.getRawButton(7))
 //        }
 //            .onTrue(
 //                MoveStageTwo(
@@ -213,7 +214,7 @@ class Robot : TimedRobot() {
 //
 //        // UP
 //        Trigger {
-//            (joystick0.getRawButton(8) || joystick1.getRawButton(8))
+//            (joystick1.getRawButton(8))
 //        }
 //            .onTrue(
 //                MoveStageTwo(
@@ -259,7 +260,7 @@ class Robot : TimedRobot() {
             ),
 
         //Align to target
-        Trigger { joystick0.getRawButton(11) }
+        Trigger { joystick0.getRawButton(11) || joystick0.getRawButton(12) }
             .whileTrue(
                 turnToTarget
             ),
@@ -361,8 +362,7 @@ class Robot : TimedRobot() {
                     ).andThen(
                         GyroBalance(
                             forward = PIDController(
-                                0.05, 0.0015, 0.002   // i: .002 and d: .005 mightve worked
-                                // main PID for balance that needs to be adjusted
+                                0.05, 0.001, 0.002   //  0.05, 0.001, 0.002
                                 // power first until oscillates, I until gets there fast, then D until no oscillations
                             ).apply {
                                 enableContinuousInput(-180.0, 180.0)
@@ -370,7 +370,6 @@ class Robot : TimedRobot() {
                             },
                             turn = PIDController(
                                 0.05, 0.0, 0.0
-                                // power first until oscillates, I until gets there fast, then D until no oscillations
                             ),
                             drive = driveTrainSubsystem,
                             gyro = gyro
@@ -378,56 +377,63 @@ class Robot : TimedRobot() {
                     )
             )
 
-//            addOption(
-//                "Eject, Leave Lines & Balance",
-//                MoveCarriage(
-//                    elevatorSubsystem,
-//                    CARRIAGE_END
-//                ).until { elevatorSubsystem.carriageLimitTop.get() }
-//                    .andThen(
-//                        Eject(intakeSubsystem).withTimeout(0.25)
-//                    )
-//                    .andThen(
-//                        MoveCarriage(
-//                            elevatorSubsystem,
-//                            0.0
-//                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
-//                    )
-//                    .andThen(
-//                        LeaveLine(
-//                            distance = 70.0,
-//                            forward = PIDController(0.15, 0.0, 0.0),
-//                            turn = PIDController(0.15, 0.0, 0.0),
-//                            drive = driveTrainSubsystem,
-//                            rightEncoder = { rightEncoder.position },
-//                            leftEncoder = { leftEncoder.position },
-//                            gyro = gyro
-//                        ).withTimeout(2.0)
-//                            .andThen(
-//                                LeaveLine(
-//                                    distance = 25.0,
-//                                    forward = PIDController(0.15, 0.0, 0.0),
-//                                    turn = PIDController(0.15, 0.0, 0.0),
-//                                    drive = driveTrainSubsystem,
-//                                    rightEncoder = { rightEncoder.position },
-//                                    leftEncoder = { leftEncoder.position },
-//                                    gyro = gyro
-//                                ).withTimeout(2.0)
-//                            ).andThen(
-//                                LeaveLine(
-//                                    distance = -35.0,
-//                                    forward = PIDController(0.15, 0.0, 0.0),
-//                                    turn = PIDController(0.15, 0.0, 0.0),
-//                                    drive = driveTrainSubsystem,
-//                                    rightEncoder = { rightEncoder.position },
-//                                    leftEncoder = { leftEncoder.position },
-//                                    gyro = gyro
-//                                ).withTimeout(2.0)
-//                            ).andThen(
-//                                gyroBalance
-//                            )
-//                    )
-//            )
+            addOption(
+                "Eject, Move Past Charge & Balance",
+                MoveCarriage(
+                    elevatorSubsystem,
+                    CARRIAGE_END
+                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                    .andThen(
+                        Eject(intakeSubsystem)
+                            .withTimeout(0.25)
+                    )
+                    .andThen(
+                        MoveCarriage(
+                            elevatorSubsystem,
+                            0.0
+                        ).until { elevatorSubsystem.carriageLimitBottom.get() }
+                    )
+                    .andThen(
+                        LeaveLine(
+                            distance = 80.0,
+                            forward = PIDController(0.15, 0.0, 0.0),
+                            turn = PIDController(0.15, 0.0, 0.0),
+                            drive = driveTrainSubsystem,
+                            rightEncoder = { rightEncoder.position },
+                            leftEncoder = { leftEncoder.position },
+                            gyro = gyro
+                        ).withTimeout(2.0)
+                            .alongWith(
+                                BrakeMotors(
+                                    driveTrainSubsystem
+                                )
+                            )
+                            ).andThen(
+                                LeaveLine(
+                                    distance = -40.0,
+                                    forward = PIDController(0.15, 0.0, 0.0),
+                                    turn = PIDController(0.15, 0.0, 0.0),
+                                    drive = driveTrainSubsystem,
+                                    rightEncoder = { rightEncoder.position },
+                                    leftEncoder = { leftEncoder.position },
+                                    gyro = gyro
+                                ).withTimeout(2.0)
+                            ).andThen(
+                                GyroBalance(
+                                    forward = PIDController(
+                                        0.05, 0.001, 0.002   //  0.05, 0.001, 0.002
+                                    ).apply {
+                                        enableContinuousInput(-180.0, 180.0)
+                                        setTolerance(1.5)
+                                    },
+                                    turn = PIDController(
+                                        0.05, 0.0, 0.0
+                                    ),
+                                    drive = driveTrainSubsystem,
+                                    gyro = gyro
+                                )
+                            )
+            )
             SmartDashboard.putData("Autonomous Mode", this)
         }
 

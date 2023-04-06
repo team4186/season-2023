@@ -7,7 +7,7 @@ import frc.subsystems.DriveTrainSubsystem
 class BrakeMotors(
     private val drive: DriveTrainSubsystem
 ) : CommandBase() {
-    var wait = 0
+    private var wait = 0
 
     override fun execute() {
         if (wait == 0) {
