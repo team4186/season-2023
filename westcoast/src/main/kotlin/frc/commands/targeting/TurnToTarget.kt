@@ -23,7 +23,7 @@ class TurnToTarget(
             0.0,
             false
         )
-        if ( vision.xOffset < 2 && vision.xOffset > -2){
+        if ( vision.xOffset < 1 && vision.xOffset > -1){
             wait++
         }
     }
@@ -33,6 +33,6 @@ class TurnToTarget(
     }
 
     override fun isFinished(): Boolean {
-        return wait > 10 || !vision.hasTarget
+        return wait > 20 || !vision.hasTarget
     }
 }

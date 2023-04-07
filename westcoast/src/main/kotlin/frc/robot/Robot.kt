@@ -13,10 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.commands.Intake.Eject
 import frc.commands.Intake.Intake
 import frc.commands.balancing.GyroBalance
-import frc.commands.drive.BrakeMotors
-import frc.commands.drive.CheesyDrive
-import frc.commands.drive.LeaveLine
-import frc.commands.drive.TeleopDrive
+import frc.commands.drive.*
 import frc.commands.elevator.MoveCarriage
 import frc.commands.elevator.MoveStageTwo
 import frc.commands.elevator.MoveWrist
@@ -131,7 +128,7 @@ class Robot : TimedRobot() {
 
     private val turnToTarget = TurnToTarget(
         turn = PIDController(
-            0.01, 0.003, 0.001
+            0.01, 0.001, 0.002
             // power first until oscillates, I until gets there fast, then D until no oscillations
         ),
         driveTrainSubsystem,
@@ -162,21 +159,24 @@ class Robot : TimedRobot() {
             ),
 
         //Align to target
-        Trigger { joystick0.getRawButton(3) || joystick1.getRawButton(3) }
+        Trigger { joystick0.getRawButton(3) }
             .whileTrue(
-                alignToLeftCone
-            ),
-
-        Trigger { joystick0.getRawButton(4) || joystick1.getRawButton(4) }
-            .whileTrue(
-                alignToRightCone
+                LockRotation(
+                    turn = PIDController(
+                        0.05, 0.0, 0.0
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    drive = driveTrainSubsystem,
+                    gyro = gyro,
+                    gyro.yaw
+                )
             ),
 
         Trigger { joystick0.getRawButton(5) || joystick1.getRawButton(5) }
             .whileTrue(
                 GyroBalance(
                     forward = PIDController(
-                        0.05, 0.001, 0.002   // 0.05, 0.001, 0.002
+                        0.03, 0.001, 0.004   // 0.05, 0.001, 0.002
                         // main PID for balance that needs to be adjusted
                         // power first until oscillates, I until gets there fast, then D until no oscillations
                     ).apply {
@@ -238,7 +238,7 @@ class Robot : TimedRobot() {
                 MoveWrist(
                     elevatorSubsystem,
                     0.0
-                ).until { elevatorSubsystem.wristLimitTop.get() } // should this be LimitBot ? or am i dumb
+                ).until { elevatorSubsystem.wristLimitTop.get() }
             ),
 
         //MOVE CARRIAGE
@@ -301,14 +301,14 @@ class Robot : TimedRobot() {
             addOption(
                 "Move Out",
                 LeaveLine(
-                    distance = 80.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                    distance = 105.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
                     forward = PIDController(0.15, 0.0, 0.0),
-                    turn = PIDController(0.15, 0.0, 0.0),
+                    turn = PIDController(0.05, 0.0, 0.0),
                     drive = driveTrainSubsystem,
                     rightEncoder = { rightEncoder.position },
                     leftEncoder = { leftEncoder.position },
                     gyro = gyro
-                ).withTimeout(2.0)
+                ).withTimeout(4.0)
             )
 
             addOption(
@@ -326,9 +326,9 @@ class Robot : TimedRobot() {
                         ).until { elevatorSubsystem.carriageLimitBottom.get() }
                     ).andThen(
                         LeaveLine(
-                            distance = 80.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
+                            distance = 105.0, // 7ft for now; 4.4 encoder/ ticks per foot 30.8 is 7ft
                             forward = PIDController(0.15, 0.0, 0.0),
-                            turn = PIDController(0.15, 0.0, 0.0),
+                            turn = PIDController(0.05, 0.0, 0.0),
                             drive = driveTrainSubsystem,
                             rightEncoder = { rightEncoder.position },
                             leftEncoder = { leftEncoder.position },
@@ -352,8 +352,8 @@ class Robot : TimedRobot() {
                     ).andThen(
                         LeaveLine(
                             distance = 60.0, //gets onto the platform
-                            forward = PIDController(0.2, 0.0015, 0.002),
-                            turn = PIDController(0.2, 0.0015, 0.002),
+                            forward = PIDController(0.15, 0.0015, 0.002),
+                            turn = PIDController(0.05, 0.0015, 0.002),
                             drive = driveTrainSubsystem,
                             rightEncoder = { rightEncoder.position },
                             leftEncoder = { leftEncoder.position },
@@ -362,7 +362,7 @@ class Robot : TimedRobot() {
                     ).andThen(
                         GyroBalance(
                             forward = PIDController(
-                                0.05, 0.001, 0.002   //  0.05, 0.001, 0.002
+                                0.03, 0.001, 0.004   //  0.05, 0.001, 0.002
                                 // power first until oscillates, I until gets there fast, then D until no oscillations
                             ).apply {
                                 enableContinuousInput(-180.0, 180.0)
@@ -397,7 +397,7 @@ class Robot : TimedRobot() {
                         LeaveLine(
                             distance = 80.0,
                             forward = PIDController(0.15, 0.0, 0.0),
-                            turn = PIDController(0.15, 0.0, 0.0),
+                            turn = PIDController(0.05, 0.0, 0.0),
                             drive = driveTrainSubsystem,
                             rightEncoder = { rightEncoder.position },
                             leftEncoder = { leftEncoder.position },
@@ -407,7 +407,7 @@ class Robot : TimedRobot() {
                                 LeaveLine(
                                     distance = (-40.0),
                                     forward = PIDController(0.15, 0.0, 0.0),
-                                    turn = PIDController(0.15, 0.0, 0.0),
+                                    turn = PIDController(0.05, 0.0, 0.0),
                                     drive = driveTrainSubsystem,
                                     rightEncoder = { rightEncoder.position },
                                     leftEncoder = { leftEncoder.position },
@@ -416,7 +416,7 @@ class Robot : TimedRobot() {
                             ).andThen(
                                 GyroBalance(
                                     forward = PIDController(
-                                        0.05, 0.001, 0.002   //  0.05, 0.001, 0.002
+                                        0.03, 0.001, 0.004   //  0.05, 0.001, 0.002
                                     ).apply {
                                         enableContinuousInput(-180.0, 180.0)
                                         setTolerance(1.5)
