@@ -24,6 +24,7 @@ class DriveTrainSubsystem(
     )
 ) : SubsystemBase() {
     private val drive: DifferentialDrive = DifferentialDrive(leftMotor, rightMotor)
+    private var currentForward = 0.0
 
     private val motorSafety: MotorSafety = object : MotorSafety() {
         override fun stopMotor() {
@@ -68,7 +69,12 @@ class DriveTrainSubsystem(
 
     fun holonomic(forward: Double, turn: Double, strafe: Double, squareInputs: Boolean) {
         drive.arcadeDrive(forward, turn, squareInputs)
+        currentForward = forward
         hMotor.set(0.6 * strafe)
+    }
+
+    fun turnOnly(turn: Double) {
+        drive.arcadeDrive(currentForward, turn)
     }
 
     fun tank(left: Double, right: Double, squareInputs: Boolean) {

@@ -137,6 +137,20 @@ class Robot : TimedRobot() {
     )
 
     private val triggers = listOf(
+        //Lock Rotation
+        Trigger { joystick0.getRawButton(1) }
+            .whileTrue(
+                LockRotation(
+                    turn = PIDController(
+                        0.1, 0.0, 0.002
+                        // power first until oscillates, I until gets there fast, then D until no oscillations
+                    ),
+                    drive = driveTrainSubsystem,
+                    gyro = gyro,
+                    { gyro.yaw }
+                )
+            ),
+
         //INTAKE TRIGGERS
         Trigger { joystick1.getRawButton(1) }
             .whileTrue(
@@ -144,6 +158,7 @@ class Robot : TimedRobot() {
                     intakeSubsystem
                 )
             ),
+
         // EJECT
         Trigger { joystick1.getRawButton(2) }
             .whileTrue(
@@ -159,30 +174,16 @@ class Robot : TimedRobot() {
                 )
             ),
 
-        //Align to target
-        Trigger { joystick0.getRawButton(3) }
-            .whileTrue(
-                LockRotation(
-                    turn = PIDController(
-                        0.1, 0.0, 0.0
-                        // power first until oscillates, I until gets there fast, then D until no oscillations
-                    ),
-                    drive = driveTrainSubsystem,
-                    gyro = gyro,
-                    gyro.yaw
-                )
-            ),
-
         Trigger { joystick1.getRawButton(3)}
             .onTrue(
                 TurnToRamp(
                     drive = driveTrainSubsystem,
                     turn = PIDController(
-                        0.05,0.01, 0.02
+                        0.1,0.002, 0.0
                     ),
                     gyro = gyro,
-                    angle = -90.0
-                ).withTimeout(1.0)
+                    angle = 90.0
+                )
             ),
 
         Trigger { joystick1.getRawButton(4)}
@@ -190,11 +191,11 @@ class Robot : TimedRobot() {
                 TurnToRamp(
                     drive = driveTrainSubsystem,
                     turn = PIDController(
-                        0.05,0.01, 0.02
+                        0.1,0.002, 0.0
                     ),
                     gyro = gyro,
-                    angle = 90.0
-                ).withTimeout(1.0)
+                    angle = -90.0
+                )
             ),
 
         Trigger { joystick0.getRawButton(5) || joystick1.getRawButton(5) }

@@ -20,11 +20,8 @@ class TurnToRamp(
             turn.calculate(gyro.yaw - ((gyro.yaw/360.0).roundToInt() * 360.0) , angle)
                 .coerceIn(-0.15, 0.15)
 
-        drive.holonomic(
-            0.0,
-            turnPower,
-            0.0,
-            false
+        drive.turnOnly(
+            turnPower
         )
         if ( gyro.yaw >= angle - 1 && gyro.yaw <= angle + 1) {
             wait++ //wait = wait + 1
@@ -34,7 +31,7 @@ class TurnToRamp(
     }
 
     override fun isFinished(): Boolean {
-        return wait >= 40
+        return wait >= 10
     }
 
     override fun end(interrupted: Boolean) {
