@@ -163,9 +163,14 @@ class Robot : TimedRobot() {
         Trigger { joystick1.getRawButton(2) }
             .whileTrue(
                 Eject(
-                    intakeSubsystem
+                    intakeSubsystem,
+                    0.5
                 )
             ),
+
+        // EJECT FASTER
+        //Trigger {joystick1.getRawButton()}
+
         // BRAKE
         Trigger { joystick0.getRawButton(2) }
             .whileTrue(
@@ -226,6 +231,16 @@ class Robot : TimedRobot() {
                 )
             ),
 
+        // EJECT FASTER
+
+        Trigger { joystick1.getRawButton(7) }
+            .whileTrue(
+                Eject(
+                    intakeSubsystem,
+                    1.0
+                )
+            ),
+
 //        //STAGE TWO
 //        // DOWN
 //        Trigger {
@@ -250,15 +265,15 @@ class Robot : TimedRobot() {
 //            ),
 
         //MOVE WRIST
-        // UP
+        // DOWN
         Trigger { joystick1.getRawButton(9) }
             .onTrue(
                 MoveWrist(
                     elevatorSubsystem,
                     WRIST_END
-                ).until { elevatorSubsystem.wristLimitBottom.get() } // should this be LimitTop ??
+                ).until { elevatorSubsystem.wristLimitBottom.get() }
             ),
-        // DOWN
+        // UP
         Trigger { joystick1.getRawButton(10) }
             .onTrue(
                 MoveWrist(
@@ -294,6 +309,7 @@ class Robot : TimedRobot() {
     )
 
     var gyroCompassStartPos = 0.0
+
     override fun robotInit() {
         driveTrainSubsystem.initialize()
         driveTrainSubsystem.leftMotor.idleMode = CANSparkMax.IdleMode.kCoast
@@ -315,7 +331,7 @@ class Robot : TimedRobot() {
                     CARRIAGE_END
                 ).until { elevatorSubsystem.carriageLimitTop.get() }
                     .andThen(
-                        Eject(intakeSubsystem).withTimeout(0.25)
+                        Eject(intakeSubsystem, 0.5).withTimeout(0.25)
                     )
                     .andThen(
                         MoveCarriage(
@@ -343,9 +359,9 @@ class Robot : TimedRobot() {
                 MoveCarriage(
                     elevatorSubsystem,
                     CARRIAGE_END
-                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                ).until { elevatorSubsystem.carriageLimitTop.get() }.withTimeout(5.0)
                     .andThen(
-                        Eject(intakeSubsystem).withTimeout(0.25)
+                        Eject(intakeSubsystem, 0.5).withTimeout(0.25)
                     ).andThen(
                         MoveCarriage(
                             elevatorSubsystem,
@@ -368,9 +384,9 @@ class Robot : TimedRobot() {
                 MoveCarriage(
                     elevatorSubsystem,
                     CARRIAGE_END
-                ).until { elevatorSubsystem.carriageLimitTop.get() }
+                ).until { elevatorSubsystem.carriageLimitTop.get() }.withTimeout(5.0)
                     .andThen(
-                        Eject(intakeSubsystem).withTimeout(0.25)
+                        Eject(intakeSubsystem, 0.5).withTimeout(0.25)
                     ).andThen(
                         MoveCarriage(
                             elevatorSubsystem,
