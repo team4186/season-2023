@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.subsystems.IntakeSubsystem
 
 class Eject(
-    private val intake: IntakeSubsystem
+    private val intake: IntakeSubsystem,
+    private val speed: Double
 ) : CommandBase() {
     override fun execute() {
         with(intake) {
-            setIntakeMotors(-0.5)
+            setIntakeMotors(-speed) // -0.5 prior
         }
     }
 
